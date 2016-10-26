@@ -2,9 +2,9 @@
 <cm:component xmlns:cm="http://www.agencexml.com/cm" name="XsltForms_xpathCoreFunctions.js">
 	<cm:author>Alain Couthures</cm:author>
 	<cm:creationdate>2009-04-07</cm:creationdate>
-	<cm:lastupdate>2010-10-03</cm:lastupdate>
+	<cm:lastupdate>2015-11-11</cm:lastupdate>
 	<cm:licence>
-Copyright (C) 2008-2010 &lt;agenceXML&gt; - Alain COUTHURES
+Copyright (C) 2008-2015 &lt;agenceXML&gt; - Alain COUTHURES
 Contact at : &lt;info@agencexml.com&gt;
 
 Copyright (C) 2006 AJAXForms S.L.
@@ -38,8 +38,475 @@ var XsltForms_mathConstants = {
 	"LOG2E":   "1.44269504088896340735992468100189213742664595415298594",
 	"SQRT1_2": "0.707106781186547524400844362104849039284835937688474038"
 };
+
+var XsltForms_xpathFunctionExceptions = {
+	lastInvalidArgumentsNumber : {
+		name : "last() : Invalid number of arguments",
+		message : "last() function has no argument"
+	},
+	positionInvalidArgumentsNumber : {
+		name : "position() : Invalid number of arguments",
+		message : "position() function has no argument"
+	},
+	countInvalidArgumentsNumber : {
+		name : "count() : Invalid number of arguments",
+		message : "count() function must have one argument exactly"
+	},
+	countInvalidArgumentType : {
+		name : "count() : Invalid type of argument",
+		message : "count() function must have a nodeset argument"
+	},
+	idInvalidArgumentsNumber : {
+		name : "id() : Invalid number of arguments",
+		message : "id() function must have one argument exactly"
+	},
+	idInvalidArgumentType : {
+		name : "id() : Invalid type of argument",
+		message : "id() function must have a nodeset or string argument"
+	},
+	localNameInvalidArgumentsNumber : {
+		name : "local-name() : Invalid number of arguments",
+		message : "local-name() function must have one argument at most"
+	},
+	localNameInvalidArgumentType : {
+		name : "local-name() : Invalid type of argument",
+		message : "local-name() function must have a nodeset argument"
+	},
+	localNameNoContext : {
+		name : "local-name() : no context node",
+		message : "local-name() function must have a nodeset argument"
+	},
+	namespaceUriInvalidArgumentsNumber : {
+		name : "namespace-uri() : Invalid number of arguments",
+		message : "namespace-uri() function must have one argument at most"
+	},
+	namespaceUriInvalidArgumentType : {
+		name : "namespace-uri() : Invalid type of argument",
+		message : "namespace-uri() function must have a nodeset argument"
+	},
+	nameInvalidArgumentsNumber : {
+		name : "name() : Invalid number of arguments",
+		message : "name() function must have one argument at most"
+	},
+	nameInvalidArgumentType : {
+		name : "name() : Invalid type of argument",
+		message : "name() function must have a nodeset argument"
+	},
+	stringInvalidArgumentsNumber : {
+		name : "string() : Invalid number of arguments",
+		message : "string() function must have one argument at most"
+	},
+	concatInvalidArgumentsNumber : {
+		name : "concat() : Invalid number of arguments",
+		message : "concat() function must have at least two arguments"
+	},
+	startsWithInvalidArgumentsNumber : {
+		name : "starts-with() : Invalid number of arguments",
+		message : "starts-with() function must have two arguments exactly"
+	},
+	endsWithInvalidArgumentsNumber : {
+		name : "ends-with() : Invalid number of arguments",
+		message : "ends-with() function must have two arguments exactly"
+	},
+	containsInvalidArgumentsNumber : {
+		name : "contains() : Invalid number of arguments",
+		message : "contains() function must have two arguments exactly"
+	},
+	substringBeforeInvalidArgumentsNumber : {
+		name : "substring-before() : Invalid number of arguments",
+		message : "substring-before() function must have two arguments exactly"
+	},
+	replaceInvalidArgumentsNumber : {
+		name : "replace() : Invalid number of arguments",
+		message : "replace() function must have three arguments exactly"
+	},
+	substringAfterInvalidArgumentsNumber : {
+		name : "substring-after() : Invalid number of arguments",
+		message : "substring-after() function must have two arguments exactly"
+	},
+	substringInvalidArgumentsNumber : {
+		name : "substring() : Invalid number of arguments",
+		message : "substring() function must have two or three arguments"
+	},
+	compareInvalidArgumentsNumber : {
+		name : "compare() : Invalid number of arguments",
+		message : "compare() function must have two arguments exactly"
+	},
+	stringLengthInvalidArgumentsNumber : {
+		name : "string-length() : Invalid number of arguments",
+		message : "string-length() function must have one argument at most"
+	},
+	normalizeSpaceInvalidArgumentsNumber : {
+		name : "normalize-space() : Invalid number of arguments",
+		message : "normalize-space() function must have one argument at most"
+	},
+	translateInvalidArgumentsNumber : {
+		name : "translate() : Invalid number of arguments",
+		message : "translate() function must have three argument exactly"
+	},
+	booleanInvalidArgumentsNumber : {
+		name : "boolean() : Invalid number of arguments",
+		message : "boolean() function must have one argument exactly"
+	},
+	notInvalidArgumentsNumber : {
+		name : "not() : Invalid number of arguments",
+		message : "not() function must have one argument exactly"
+	},
+	trueInvalidArgumentsNumber : {
+		name : "true() : Invalid number of arguments",
+		message : "true() function must have no argument"
+	},
+	falseInvalidArgumentsNumber : {
+		name : "false() : Invalid number of arguments",
+		message : "false() function must have no argument"
+	},
+	langInvalidArgumentsNumber : {
+		name : "lang() : Invalid number of arguments",
+		message : "lang() function must have one argument exactly"
+	},
+	numberInvalidArgumentsNumber : {
+		name : "number() : Invalid number of arguments",
+		message : "number() function must have one argument exactly"
+	},
+	sumInvalidArgumentsNumber : {
+		name : "sum() : Invalid number of arguments",
+		message : "sum() function must have one argument exactly"
+	},
+	sumInvalidArgumentType : {
+		name : "sum() : Invalid type of argument",
+		message : "sum() function must have a nodeset argument"
+	},
+	floorInvalidArgumentsNumber : {
+		name : "floor() : Invalid number of arguments",
+		message : "floor() function must have one argument exactly"
+	},
+	ceilingInvalidArgumentsNumber : {
+		name : "ceiling() : Invalid number of arguments",
+		message : "ceiling() function must have one argument exactly"
+	},
+	roundInvalidArgumentsNumber : {
+		name : "round() : Invalid number of arguments",
+		message : "round() function must have one argument exactly"
+	},
+	powerInvalidArgumentsNumber : {
+		name : "power() : Invalid number of arguments",
+		message : "power() function must have one argument exactly"
+	},
+	randomInvalidArgumentsNumber : {
+		name : "random() : Invalid number of arguments",
+		message : "random() function must have no argument"
+	},
+	booleanFromStringInvalidArgumentsNumber : {
+		name : "boolean-from-string() : Invalid number of arguments",
+		message : "boolean-from-string() function must have one argument exactly"
+	},
+	ifInvalidArgumentsNumber : {
+		name : "if() : Invalid number of arguments",
+		message : "if() function must have three argument exactly"
+	},
+	chooseInvalidArgumentsNumber : {
+		name : "choose() : Invalid number of arguments",
+		message : "choose() function must have three argument exactly"
+	},
+	digestInvalidArgumentsNumber : {
+		name : "digest() : Invalid number of arguments",
+		message : "digest() function must have two or three arguments"
+	},
+	hmacInvalidArgumentsNumber : {
+		name : "choose() : Invalid number of arguments",
+		message : "choose() function must have three or four arguments"
+	},
+	avgInvalidArgumentsNumber : {
+		name : "avg() : Invalid number of arguments",
+		message : "avg() function must have one argument exactly"
+	},
+	avgInvalidArgumentType : {
+		name : "avg() : Invalid type of argument",
+		message : "avg() function must have a nodeset argument"
+	},
+	minInvalidArgumentsNumber : {
+		name : "min() : Invalid number of arguments",
+		message : "min() function must have one argument exactly"
+	},
+	minInvalidArgumentType : {
+		name : "min() : Invalid type of argument",
+		message : "min() function must have a nodeset argument"
+	},
+	maxInvalidArgumentsNumber : {
+		name : "max() : Invalid number of arguments",
+		message : "max() function must have one argument exactly"
+	},
+	maxInvalidArgumentType : {
+		name : "max() : Invalid type of argument",
+		message : "max() function must have a nodeset argument"
+	},
+	serializeInvalidArgumentType : {
+		name : "serialize() : Invalid type of argument",
+		message : "serialize() function must have a nodeset argument"
+	},
+	countNonEmptyInvalidArgumentsNumber : {
+		name : "count-non-empty() : Invalid number of arguments",
+		message : "count-non-empty() function must have one argument exactly"
+	},
+	countNonEmptyInvalidArgumentType : {
+		name : "count-non-empty() : Invalid type of argument",
+		message : "count-non-empty() function must have a nodeset argument"
+	},
+	indexInvalidArgumentsNumber : {
+		name : "index() : Invalid number of arguments",
+		message : "index() function must have one argument exactly"
+	},
+	nodeIndexInvalidArgumentsNumber : {
+		name : "nodeIndex() : Invalid number of arguments",
+		message : "nodeIndex() function must have one argument exactly"
+	},
+	propertyInvalidArgumentsNumber : {
+		name : "property() : Invalid number of arguments",
+		message : "property() function must have one argument exactly"
+	},
+	propertyInvalidArgument : {
+		name : "property() : Invalid argument",
+		message : "Invalid property name"
+	},
+	secondsInvalidArgumentsNumber : {
+		name : "seconds() : Invalid number of arguments",
+		message : "seconds() function must have one argument exactly"
+	},
+	monthsInvalidArgumentsNumber : {
+		name : "months() : Invalid number of arguments",
+		message : "months() function must have one argument exactly"
+	},
+	instanceInvalidArgumentsNumber : {
+		name : "instance() : Invalid number of arguments",
+		message : "instance() function must have zero or one argument"
+	},
+	subformInstanceInvalidArgumentsNumber : {
+		name : "subform-instance() : Invalid number of arguments",
+		message : "subform-instance() function must have no argument"
+	},
+	subformContextInvalidArgumentsNumber : {
+		name : "subform-context() : Invalid number of arguments",
+		message : "subform-context() function must have no argument"
+	},
+	nowInvalidArgumentsNumber : {
+		name : "now() : Invalid number of arguments",
+		message : "now() function must have no argument"
+	},
+	localDateInvalidArgumentsNumber : {
+		name : "local-date() : Invalid number of arguments",
+		message : "local-date() function must have no argument"
+	},
+	localDateTimeInvalidArgumentsNumber : {
+		name : "local-dateTime() : Invalid number of arguments",
+		message : "local-dateTime() function must have no argument"
+	},
+	adjustDateTimeToTimezoneInvalidArgumentsNumber: {
+		name : "adjust-dateTime-to-timezone() : Invalid number of arguments",
+		message : "adjust-dateTime-to-timezone() function must have zero or one argument"
+	},
+	daysFromDateInvalidArgumentsNumber : {
+		name : "days-from-date() : Invalid number of arguments",
+		message : "days-from-date() function must have one argument exactly"
+	},
+	daysToDateInvalidArgumentsNumber : {
+		name : "days-to-date() : Invalid number of arguments",
+		message : "days-to-date() function must have one argument exactly"
+	},
+	secondsToDateTimeInvalidArgumentsNumber : {
+		name : "seconds-to-dateTime() : Invalid number of arguments",
+		message : "seconds-to-dateTime() function must have one argument exactly"
+	},
+	secondsFromDateTimeInvalidArgumentsNumber : {
+		name : "seconds-from-dateTime() : Invalid number of arguments",
+		message : "seconds-from-dateTime() function must have one argument exactly"
+	},
+	currentInvalidArgumentsNumber : {
+		name : "current() : Invalid number of arguments",
+		message : "current() function must have no argument"
+	},
+	isValidInvalidArgumentsNumber : {
+		name : "is-valid() : Invalid number of arguments",
+		message : "is-valid() function must have one argument exactly"
+	},
+	isValidInvalidArgumentType : {
+		name : "is-valid() : Invalid type of argument",
+		message : "is-valid() function must have a nodeset argument"
+	},
+	isNonEmptyArrayArgumentsNumber : {
+		name : "is-non-empty-array() : Invalid number of arguments",
+		message : "is-non-empty-array() function must have zero or one argument"
+	},
+	isNonEmptyArrayInvalidArgumentType : {
+		name : "is-non-empty-array() : Invalid type of argument",
+		message : "is-non-empty-array() function must have a node argument"
+	},
+	isCardNumberInvalidArgumentsNumber : {
+		name : "is-card-number() : Invalid number of arguments",
+		message : "is-card-number() function must have one argument exactly"
+	},
+	upperCaseInvalidArgumentsNumber : {
+		name : "upper-case() : Invalid number of arguments",
+		message : "upper-case() function must have one argument exactly"
+	},
+	lowerCaseInvalidArgumentsNumber : {
+		name : "lower-case() : Invalid number of arguments",
+		message : "lower-case() function must have one argument exactly"
+	},
+	formatNumberInvalidArgumentsNumber : {
+		name : "format-number() : Invalid number of arguments",
+		message : "format-number() function must have two arguments exactly"
+	},
+	distinctValuesInvalidArgumentsNumber : {
+		name : "distinct-values() : Invalid number of arguments",
+		message : "distinct-values() function must have one argument exactly"
+	},
+	transformInvalidArgumentsNumber : {
+		name : "transform() : Invalid number of arguments",
+		message : "transform() function must have two arguments exactly"
+	},
+	serializeNoContext : {
+		name : "serialize() : no context node",
+		message : "serialize() function must have a node argument"
+	},
+	serializeInvalidArgumentsNumber : {
+		name : "serialize() : Invalid number of arguments",
+		message : "serialize() function must have one argument exactly"
+	},
+	eventInvalidArgumentsNumber : {
+		name : "event() : Invalid number of arguments",
+		message : "event() function must have one argument exactly"
+	},
+	alertInvalidArgumentsNumber : {
+		name : "alert() : Invalid number of arguments",
+		message : "alert() function must have one argument exactly"
+	},
+	jsevalInvalidArgumentsNumber : {
+		name : "js-eval() : Invalid number of arguments",
+		message : "js-eval() function must have one argument exactly"
+	},
+	stringJoinInvalidArgumentsNumber : {
+		name : "string-join() : Invalid number of arguments",
+		message : "string-join() function must have one or two arguments"
+	},
+	stringJoinInvalidArgumentType : {
+		name : "string-join() : Invalid type of argument",
+		message : "string-join() function must have a nodeset argument"
+	},
+	itextInvalidArgumentsNumber : {
+		name : "itext() : Invalid number of arguments",
+		message : "itext() function must have one argument"
+	},
+	encodeForUriInvalidArgumentsNumber : {
+		name : "encode-for-uri() : Invalid number of arguments",
+		message : "encode-for-uri() function must have one argument exactly"
+	}
+};
 		
 var XsltForms_xpathCoreFunctions = {
+]]>
+		<cm:wiki>
+* '''node()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions node" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.nodeInvalidArgumentsNumber;
+			}
+			return ctx.current.childNodes;
+		} ),
+]]>
+		<cm:wiki>
+* '''comment()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions comment" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.commentInvalidArgumentsNumber;
+			}
+			var result = [];
+			if (ctx.current.childNodes) {
+				for (var i = 0, len = ctx.current.childNodes.length; i < len; i++) {
+					if (ctx.current.childNodes[i].nodeType === Fleur.Node.COMMENT_NODE) {
+						result.push(ctx.current.childNodes[i]);
+					}
+				}
+			}
+			return result;
+		} ),
+]]>
+		<cm:wiki>
+* '''text()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions text" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.textInvalidArgumentsNumber;
+			}
+			var result = [];
+			if (ctx.current.childNodes) {
+				for (var i = 0, len = ctx.current.childNodes.length; i < len; i++) {
+					if (ctx.current.childNodes[i].nodeType === Fleur.Node.TEXT_NODE) {
+						result.push(ctx.current.childNodes[i]);
+					}
+				}
+			}
+			return result;
+		} ),
+]]>
+		<cm:wiki>
+* '''array()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions array" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.textInvalidArgumentsNumber;
+			}
+			var result = [];
+			if (ctx.current.childNodes) {
+				for (var i = 0, len = ctx.current.childNodes.length; i < len; i++) {
+					if (ctx.current.childNodes[i].nodeType === Fleur.Node.ARRAY_NODE) {
+						result.push(ctx.current.childNodes[i]);
+					}
+				}
+			}
+			return result;
+		} ),
+]]>
+		<cm:wiki>
+* '''map()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions map" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.textInvalidArgumentsNumber;
+			}
+			var result = [];
+			if (ctx.current.childNodes) {
+				for (var i = 0, len = ctx.current.childNodes.length; i < len; i++) {
+					if (ctx.current.childNodes[i].nodeType === Fleur.Node.MAP_NODE) {
+						result.push(ctx.current.childNodes[i]);
+					}
+				}
+			}
+			return result;
+		} ),
+]]>
+		<cm:wiki>
+* '''entry()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions entry" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(ctx) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.textInvalidArgumentsNumber;
+			}
+			var result = [];
+			if (ctx.current.entries) {
+				for (var i = 0, len = ctx.current.entries.length; i < len; i++) {
+					result.push(ctx.current.entries[i]);
+				}
+			}
+			return result;
+		} ),
 ]]>
 		<cm:wiki>
 * '''last()'''</cm:wiki>
@@ -115,6 +582,10 @@ var XsltForms_xpathCoreFunctions = {
 				var idattr = XsltForms_globals.IDstr ? XsltForms_globals.IDstr : "@xml:id";
 				for (var k = 0, len2 = ids.length; k < len2; k++) {
 					var n = XsltForms_browser.selectSingleNode("descendant-or-self::*[" + idattr + "='" + ids[k] + "']", ref[0]);
+					if (n) {
+						result.push(n);
+					}
+					n = XsltForms_browser.selectSingleNode("descendant-or-self::*[@*[local-name() = 'type'] = 'xsd:ID' and . = '" + ids[k] + "']", ref[0]);
 					if (n) {
 						result.push(n);
 					}
@@ -331,6 +802,18 @@ var XsltForms_xpathCoreFunctions = {
 				result += index === -1? string.charAt(i) : to.charAt(index);
 			}
 			return result;
+		} ),
+]]>
+		<cm:wiki>
+* '''replace(string, pattern, replacement)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions replace" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(string, pattern, replacement) {
+			if (arguments.length !== 3) {
+				throw XsltForms_xpathFunctionExceptions.replaceInvalidArgumentsNumber;
+			}
+			string = XsltForms_globals.stringValue(string);
+			return string.replace(new RegExp(XsltForms_globals.stringValue(pattern), "g"), XsltForms_globals.stringValue(replacement));
 		} ),
 ]]>
 		<cm:wiki>
@@ -620,7 +1103,11 @@ var XsltForms_xpathCoreFunctions = {
 			if (arguments.length !== 2) {
 				throw XsltForms_xpathFunctionExceptions.indexInvalidArgumentsNumber;
 			}
-			var xf = XsltForms_idManager.find(XsltForms_globals.stringValue(id)).xfElement;
+			var elt = XsltForms_idManager.find(XsltForms_globals.stringValue(id));
+			if (!elt) {
+				return NaN;
+			}
+			var xf = elt.xfElement;
 			ctx.addDepElement(xf);
 			return xf.index;
 		} ),
@@ -638,7 +1125,7 @@ var XsltForms_xpathCoreFunctions = {
 			ctx.addDepElement(control.xfElement);
 			if (node) {
 				ctx.addDepNode(node);
-				ctx.addDepElement(document.getElementById(XsltForms_browser.getMeta(node.documentElement ? node.documentElement : node.ownerDocument.documentElement, "model")).xfElement);
+				ctx.addDepElement(document.getElementById(XsltForms_browser.getDocMeta(node.nodeType === Fleur.Node.DOCUMENT_NODE ? node : node.ownerDocument, "model")).xfElement);
 			}
 			return node? [ node ] : [];
 		} ),
@@ -681,8 +1168,43 @@ var XsltForms_xpathCoreFunctions = {
 							}
 						}
 					}
+					if (name.match("^[" + XsltForms_typeDefs.ctes.i + "][" + XsltForms_typeDefs.ctes.c + "]*$")) {
+						XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-binding-exception", "Invalid NCNAME");
+					}
 			}
 			return "";
+		} ),
+]]>
+		<cm:wiki>
+* '''seconds(string)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2002/xforms seconds" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(duration) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.secondsInvalidArgumentsNumber;
+			}
+			duration = XsltForms_globals.stringValue(duration);
+			var durarr = duration.match("^-?P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T(?!$)([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$");
+			if (durarr) {
+				return (duration.charAt(0) === '-'? -1: 1)*(((parseFloat(durarr[3] || 0)*24 + parseFloat(durarr[5] || 0))*60 + parseFloat(durarr[6] || 0))*60 + parseFloat(durarr[7] || 0));
+			}
+			return NaN;
+		} ),
+]]>
+		<cm:wiki>
+* '''months(string)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2002/xforms months" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(duration) {
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.monthsInvalidArgumentsNumber;
+			}
+			duration = XsltForms_globals.stringValue(duration);
+			var durarr = duration.match("^-?P(?!$)([0-9]+Y)?([0-9]+M)?([0-9]+D)?(T(?!$)([0-9]+H)?([0-9]+M)?([0-9]+(\\.[0-9]+)?S)?)?$");
+			if (durarr) {
+				return (duration.charAt(0) === '-'? -1: 1)*(parseFloat(durarr[1] || 0)*12 + parseFloat(durarr[2] || 0));
+			}
+			return NaN;
 		} ),
 ]]>
 		<cm:wiki>
@@ -694,6 +1216,7 @@ var XsltForms_xpathCoreFunctions = {
 				throw XsltForms_xpathFunctionExceptions.instanceInvalidArgumentsNumber;
 			}
 			var name = idRef ? XsltForms_globals.stringValue(idRef) : "";
+			var res;
 			if (name !== "") {
 				var instance = document.getElementById(name);
 				if (!instance) {
@@ -707,17 +1230,42 @@ var XsltForms_xpathCoreFunctions = {
 					}
 					if (!f.doc) {
 						f.doc = XsltForms_browser.createXMLDocument("<dummy/>");
-						var modid = XsltForms_browser.getMeta(instance.xfElement.doc.documentElement, "model");
-						XsltForms_browser.loadXML(f.doc.documentElement, XsltForms_browser.utf8decode(zip_inflate(f.compressedFileData)));
-						XsltForms_browser.setMeta(f.doc.documentElement, "instance", idRef);
-						XsltForms_browser.setMeta(f.doc.documentElement, "model", modid);
+						var modid = XsltForms_browser.getDocMeta(instance.xfElement.doc, "model");
+						XsltForms_browser.loadDoc(f.doc, XsltForms_browser.utf8decode(zip_inflate(f.compressedFileData)));
+						XsltForms_browser.setDocMeta(f.doc, "instance", idRef);
+						XsltForms_browser.setDocMeta(f.doc, "model", modid);
 					}
-					return [f.doc.documentElement];
+					res = f.doc.documentElement;
 				}
-				return [instance.xfElement.doc.documentElement];
+				res = instance.xfElement.doc.documentElement;
 			} else {
-				return [ctx.node.ownerDocument.documentElement];
+				res = ctx.node.ownerDocument.documentElement;
 			}
+			ctx.addDepNode(res);
+			return [res];
+		} ),
+]]>
+		<cm:wiki>
+* '''subform-instance()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions subform-instance" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, true,
+		function(ctx) {
+			if (arguments.length > 1) {
+				throw XsltForms_xpathFunctionExceptions.subformInstanceInvalidArgumentsNumber;
+			}
+			return [ctx.subform.instances[0].doc.documentElement];
+		} ),
+]]>
+		<cm:wiki>
+* '''subform-context()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions subform-context" : new XsltForms_xpathFunction(true, XsltForms_xpathFunction.DEFAULT_NONE, true,
+		function(ctx) {
+			if (arguments.length > 1) {
+				throw XsltForms_xpathFunctionExceptions.subformContextInvalidArgumentsNumber;
+			}
+			var b = document.getElementById(ctx.subform.eltid).xfElement.boundnodes;
+			return b ? [b[0]] : [];
 		} ),
 ]]>
 		<cm:wiki>
@@ -758,6 +1306,9 @@ var XsltForms_xpathCoreFunctions = {
 <![CDATA[
 	"http://www.w3.org/2002/xforms adjust-dateTime-to-timezone" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
 		function(string) {
+			if (arguments.length === 0) {
+				return "";
+			}
 			if (arguments.length !== 1) {
 				throw XsltForms_xpathFunctionExceptions.adjustDateTimeToTimezoneInvalidArgumentsNumber;
 			}
@@ -861,7 +1412,7 @@ var XsltForms_xpathCoreFunctions = {
 				throw XsltForms_xpathFunctionExceptions.currentInvalidArgumentsNumber;
 			}
 			ctx.addDepNode(ctx.node);
-			ctx.addDepElement(document.getElementById(XsltForms_browser.getMeta(ctx.node.documentElement ? ctx.node.documentElement : ctx.node.ownerDocument.documentElement, "model")).xfElement);
+			ctx.addDepElement(document.getElementById(XsltForms_browser.getDocMeta(ctx.node.nodeType === Fleur.Node.DOCUMENT_NODE ? ctx.node : ctx.node.ownerDocument, "model")).xfElement);
 			return [ctx.current];
 		} ),
 ]]>
@@ -915,269 +1466,65 @@ var XsltForms_xpathCoreFunctions = {
 		<cm:wiki>
 * '''digest(string, string, string?)'''</cm:wiki>
 <![CDATA[
-/*jshint bitwise:false */
 	"http://www.w3.org/2002/xforms digest" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
 		function(str, algo, enco) {
 			if (arguments.length !== 2 && arguments.length !== 3) {
 				throw XsltForms_xpathFunctionExceptions.digestInvalidArgumentsNumber;
 			}
-			str = XsltForms_globals.stringValue(str);
 			algo = XsltForms_globals.stringValue(algo);
-			enco = enco ? XsltForms_globals.stringValue(enco) : "base64";
-			var i;
-			var b64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-			switch (algo) {
-				case "SHA-1":
-					var l = str.length;
-					var bl = l*8;
-					var W = [];
-					var H0 = 0x67452301;
-					var H1 = 0xefcdab89;
-					var H2 = 0x98badcfe;
-					var H3 = 0x10325476;
-					var H4 = 0xc3d2e1f0;
-					var a, b, c, d, e, T;
-					var msg = [];
-					for(i = 0; i < l; i++){
-						msg[i >> 2] |= (str.charCodeAt(i)& 0xFF)<<((3-i%4)<<3);
-					}
-					msg[bl >> 5] |= 0x80 <<(24-bl%32);
-					msg[((bl+65 >> 9)<< 4)+ 15] = bl;
-					l = msg.length;
-					var rotl = function(x,n) {
-						return(x <<  n)|(x >>>(32-n));
-					};
-					var add32 = function(x,y) {
-						var lsw = (x & 0xFFFF)+(y & 0xFFFF);
-						return ((((x >>> 16)+(y >>> 16)+(lsw >>> 16)) & 0xFFFF)<< 16)|(lsw & 0xFFFF);
-					};
-					for(i = 0; i < l; i += 16){
-						a = H0;
-						b = H1;
-						c = H2;
-						d = H3;
-						e = H4;
-						var t;
-						for(t = 0; t<20; t++){
-							T = add32(add32(add32(add32(rotl(a,5),(b & c)^(~b & d)),e),0x5a827999),W[t] = t<16 ? msg[t+i] : rotl(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16],1));
-							e = d;
-							d = c;
-							c = rotl(b,30);
-							b = a;
-							a = T;
-						}
-						for(t = 20; t<40; t++){
-							T = add32(add32(add32(add32(rotl(a,5),b^c^d),e),0x6ed9eba1),W[t] = rotl(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16],1));
-							e = d;
-							d = c;
-							c = rotl(b,30);
-							b = a;
-							a = T;
-						}
-						for(t = 40; t<60; t++){
-							T = add32(add32(add32(add32(rotl(a,5),(b & c)^(b & d)^(c & d)),e),0x8f1bbcdc),W[t] = rotl(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16],1));
-							e = d;
-							d = c;
-							c = rotl(b,30);
-							b = a;
-							a = T;
-						}
-						for(t = 60; t<80; t++){
-							T = add32(add32(add32(add32(rotl(a,5),b^c^d),e),0xca62c1d6),W[t] = rotl(W[t-3] ^ W[t-8] ^ W[t-14] ^ W[t-16],1));
-							e = d;
-							d = c;
-							c = rotl(b,30);
-							b = a;
-							a = T;
-						}
-						H0 = add32(a,H0);
-						H1 = add32(b,H1);
-						H2 = add32(c,H2);
-						H3 = add32(d,H3);
-						H4 = add32(e,H4);
-					}
-					switch (enco) {
-						case "hex" :
-							var hex32 = function(v) {
-								var h = v >>> 16;
-								var l = v & 0xFFFF;
-								return (h >= 0x1000 ? "" : h >= 0x100 ? "0" : h >= 0x10 ? "00" : "000")+h.toString(16)+(l >= 0x1000 ? "" : l >= 0x100 ? "0" : l >= 0x10 ? "00" : "000")+l.toString(16);
-							};
-							return hex32(H0)+hex32(H1)+hex32(H2)+hex32(H3)+hex32(H4);
-						case "base64" :
-							var b12 = function(v) {
-								return b64.charAt((v >>> 6) & 0x3F)+b64.charAt(v & 0x3F);
-							};
-							var b30 = function(v) {
-								return b64.charAt(v >>> 24)+b64.charAt((v >>> 18) & 0x3F)+b64.charAt((v >>> 12) & 0x3F)+b64.charAt((v >>> 6) & 0x3F)+b64.charAt(v & 0x3F);
-							};
-							return b30(H0 >>> 2)+b30(((H0 & 0x3) << 28) | (H1 >>> 4))+b30(((H1 & 0xF) << 26) | (H2 >>> 6))+b30(((H2 & 0x3F) << 24) | (H3 >>> 8))+b30(((H3 & 0xFF) << 22) | (H4 >>> 10))+b12((H4 & 0x3FF)<<2)+"=";
-					}
-					break;
-				case "MD5":
-					var n = str.length;
-					var add32 = function (a, b) {
-						return (a + b) & 0xFFFFFFFF;
-					};
-					var cmn = function(q, a, b, x, s, t) {
-						a = add32(add32(a, q), add32(x, t));
-						return add32((a << s) | (a >>> (32 - s)), b);
-					};
-					var f1 = function(a, b, c, d, x, s, t) {
-						return cmn((b & c) | ((~b) & d), a, b, x, s, t);
-					};
-					var f2 = function(a, b, c, d, x, s, t) {
-						return cmn((b & d) | (c & (~d)), a, b, x, s, t);
-					};
-					var f3 = function(a, b, c, d, x, s, t) {
-						return cmn(b ^ c ^ d, a, b, x, s, t);
-					};
-					var f4 = function(a, b, c, d, x, s, t) {
-						return cmn(c ^ (b | (~d)), a, b, x, s, t);
-					};
-					var cycle = function (w, t) {
-						var a = w[0], b = w[1], c = w[2], d = w[3];
-						a = f1(a, b, c, d, t[0], 7, -680876936);
-						d = f1(d, a, b, c, t[1], 12, -389564586);
-						c = f1(c, d, a, b, t[2], 17,  606105819);
-						b = f1(b, c, d, a, t[3], 22, -1044525330);
-						a = f1(a, b, c, d, t[4], 7, -176418897);
-						d = f1(d, a, b, c, t[5], 12,  1200080426);
-						c = f1(c, d, a, b, t[6], 17, -1473231341);
-						b = f1(b, c, d, a, t[7], 22, -45705983);
-						a = f1(a, b, c, d, t[8], 7,  1770035416);
-						d = f1(d, a, b, c, t[9], 12, -1958414417);
-						c = f1(c, d, a, b, t[10], 17, -42063);
-						b = f1(b, c, d, a, t[11], 22, -1990404162);
-						a = f1(a, b, c, d, t[12], 7,  1804603682);
-						d = f1(d, a, b, c, t[13], 12, -40341101);
-						c = f1(c, d, a, b, t[14], 17, -1502002290);
-						b = f1(b, c, d, a, t[15], 22,  1236535329);
-						a = f2(a, b, c, d, t[1], 5, -165796510);
-						d = f2(d, a, b, c, t[6], 9, -1069501632);
-						c = f2(c, d, a, b, t[11], 14,  643717713);
-						b = f2(b, c, d, a, t[0], 20, -373897302);
-						a = f2(a, b, c, d, t[5], 5, -701558691);
-						d = f2(d, a, b, c, t[10], 9,  38016083);
-						c = f2(c, d, a, b, t[15], 14, -660478335);
-						b = f2(b, c, d, a, t[4], 20, -405537848);
-						a = f2(a, b, c, d, t[9], 5,  568446438);
-						d = f2(d, a, b, c, t[14], 9, -1019803690);
-						c = f2(c, d, a, b, t[3], 14, -187363961);
-						b = f2(b, c, d, a, t[8], 20,  1163531501);
-						a = f2(a, b, c, d, t[13], 5, -1444681467);
-						d = f2(d, a, b, c, t[2], 9, -51403784);
-						c = f2(c, d, a, b, t[7], 14,  1735328473);
-						b = f2(b, c, d, a, t[12], 20, -1926607734);
-						a = f3(a, b, c, d, t[5], 4, -378558);
-						d = f3(d, a, b, c, t[8], 11, -2022574463);
-						c = f3(c, d, a, b, t[11], 16,  1839030562);
-						b = f3(b, c, d, a, t[14], 23, -35309556);
-						a = f3(a, b, c, d, t[1], 4, -1530992060);
-						d = f3(d, a, b, c, t[4], 11,  1272893353);
-						c = f3(c, d, a, b, t[7], 16, -155497632);
-						b = f3(b, c, d, a, t[10], 23, -1094730640);
-						a = f3(a, b, c, d, t[13], 4,  681279174);
-						d = f3(d, a, b, c, t[0], 11, -358537222);
-						c = f3(c, d, a, b, t[3], 16, -722521979);
-						b = f3(b, c, d, a, t[6], 23,  76029189);
-						a = f3(a, b, c, d, t[9], 4, -640364487);
-						d = f3(d, a, b, c, t[12], 11, -421815835);
-						c = f3(c, d, a, b, t[15], 16,  530742520);
-						b = f3(b, c, d, a, t[2], 23, -995338651);
-						a = f4(a, b, c, d, t[0], 6, -198630844);
-						d = f4(d, a, b, c, t[7], 10,  1126891415);
-						c = f4(c, d, a, b, t[14], 15, -1416354905);
-						b = f4(b, c, d, a, t[5], 21, -57434055);
-						a = f4(a, b, c, d, t[12], 6,  1700485571);
-						d = f4(d, a, b, c, t[3], 10, -1894986606);
-						c = f4(c, d, a, b, t[10], 15, -1051523);
-						b = f4(b, c, d, a, t[1], 21, -2054922799);
-						a = f4(a, b, c, d, t[8], 6,  1873313359);
-						d = f4(d, a, b, c, t[15], 10, -30611744);
-						c = f4(c, d, a, b, t[6], 15, -1560198380);
-						b = f4(b, c, d, a, t[13], 21,  1309151649);
-						a = f4(a, b, c, d, t[4], 6, -145523070);
-						d = f4(d, a, b, c, t[11], 10, -1120210379);
-						c = f4(c, d, a, b, t[2], 15,  718787259);
-						b = f4(b, c, d, a, t[9], 21, -343485551);
-						w[0] = add32(a, w[0]);
-						w[1] = add32(b, w[1]);
-						w[2] = add32(c, w[2]);
-						w[3] = add32(d, w[3]);
-					};
-					var w = [1732584193, -271733879, -1732584194, 271733878];
-					var t;
-					i = 0;
-					while (i <= n-64) {
-						t = [];
-						do {
-							t.push(str.charCodeAt(i) + (str.charCodeAt(i+1) << 8) + (str.charCodeAt(i+2) << 16) + (str.charCodeAt(i+3) << 24));
-							i += 4;
-						} while ( i%64 != 0 );
-						cycle(w, t);
-					}
-					t = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-					var j = 0;
-					while ( i < n ) {
-						t[j>>2] |= str.charCodeAt(i) << ((j%4) << 3);
-						i++;
-						j++;
-					}
-					t[j>>2] |= 0x80 << ((j%4) << 3);
-					if (j > 55) {
-						cycle(w, t);
-						t = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
-					}
-					t[14] = n*8;
-					cycle(w, t);
-					var k;
-					for (k = 0, l = w.length; k < l; k++) {
-						w[k] = ((w[k] & 0xFF) << 24) | (((w[k] >> 8) & 0xFF) << 16) | (((w[k] >> 16) & 0xFF) << 8) | ((w[k] >> 24) & 0xFF);
-					}
-					switch (enco) {
-						case "hex" :
-							var hex32 = function(v) {
-								var h = v >>> 16;
-								var l = v & 0xFFFF;
-								return (h >= 0x1000 ? "" : h >= 0x100 ? "0" : h >= 0x10 ? "00" : "000")+h.toString(16)+(l >= 0x1000 ? "" : l >= 0x100 ? "0" : l >= 0x10 ? "00" : "000")+l.toString(16);
-							};
-							var str2 = "";
-							for (k = 0, l = w.length; k < l; k++) {
-								str2 += hex32(w[k]);
-							}
-							return str2;
-						case "base64" :
-							var l2 = w.length*4;
-							var str2 = "";
-							for (i = 0; i < l2; i += 3) {
-								var c1 = (w[i >> 2] >> (24 - (i%4)*8))& 0xFF;
-								var c2 = i + 1 < l2 ? (w[(i + 1) >> 2] >> (24 - ((i+1)%4)*8))& 0xFF : 0;
-								var c3 = i + 2 < l2 ? (w[(i + 2) >> 2] >> (24 - ((i+2)%4)*8))& 0xFF : 0;
-								str2 += b64.charAt(c1 >> 2) + b64.charAt((c1 & 3) << 4 | c2 >> 4) + (i + 1 < l2 ? b64.charAt((c2 & 15) << 2 | c3 >> 6) : "=") + (i + 2 < l2 ? b64.charAt(c3 & 63) : "=");
-							}
-							return str2;
-					}
-					break;
-				case "BASE64":
-					str = str.replace(/\r\n/g,"\n");
-					var l2 = str.length;
-					var str2 = "";
-					for (i = 0; i < l2; i++) {
-						var c0 = str.charCodeAt(i);
-						str2 += c0 < 128 ? str.charAt(i) : c0 > 127 && c0 < 2048 ? String.fromCharCode(c0 >> 6 | 192, c0 & 63 | 128) : String.fromCharCode(c0 >> 12 | 224, c0 >> 6 & 63 | 128, c0 & 63 | 128);
-					}
-					l2 = str2.length;
-					var res = "";
-					for (i = 0; i < l2; i += 3) {
-						var c1 = str2.charCodeAt(i);
-						var c2 = i + 1 < l2 ? str2.charCodeAt(i + 1) : 0;
-						var c3 = i + 2 < l2 ? str2.charCodeAt(i + 2) : 0;
-						res += b64.charAt(c1 >> 2) + b64.charAt((c1 & 3) << 4 | c2 >> 4) + (i + 1 < l2 ? b64.charAt((c2 & 15) << 2 | c3 >> 6) : "=") + (i + 2 < l2 ? b64.charAt(c3 & 63) : "=");
-					}
-					return res;
+			if (algo !== "SHA-1" && algo !== "MD5" && algo !== "SHA-256" && algo !== "BASE64") {
+				XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-binding-exception", "Invalid crypting method");
+				return "unsupported";
 			}
-			return "unsupported";
+			enco = enco ? XsltForms_globals.stringValue(enco) : "base64";
+			if (enco !== "hex" && enco !== "base64") {
+				XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-binding-exception", "Invalid encoding method");
+				return "unsupported";
+			}
+			str = XsltForms_globals.stringValue(str);
+			return XsltForms_globals.encode(XsltForms_globals.crypto(XsltForms_globals.str2msg(str), algo), enco);
+		} ),
+]]>
+		<cm:wiki>
+* '''hmac(string, string, string?)'''</cm:wiki>
+<![CDATA[
+/*jshint bitwise:false */
+	"http://www.w3.org/2002/xforms hmac" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(key, str, algo, enco) {
+			if (arguments.length !== 3 && arguments.length !== 4) {
+				throw XsltForms_xpathFunctionExceptions.hmacInvalidArgumentsNumber;
+			}
+			algo = XsltForms_globals.stringValue(algo);
+			if (algo !== "SHA-1" && algo !== "MD5" && algo !== "SHA-256" && algo !== "BASE64") {
+				XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-binding-exception", "Invalid crypting method");
+				return "unsupported";
+			}
+			enco = enco ? XsltForms_globals.stringValue(enco) : "base64";
+			if (enco !== "hex" && enco !== "base64") {
+				XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-binding-exception", "Invalid encoding method");
+				return "unsupported";
+			}
+			key = XsltForms_globals.stringValue(key);
+			str = XsltForms_globals.stringValue(str);
+			var i, ik = [], ok = [];
+			var k = XsltForms_globals.str2msg(key);
+			if (k.length > 64) {
+				k = XsltForms_globals.crypto(k, algo);
+			}
+			for (i = (k.length + 3) >> 2; i < 16; i++) {
+				k.arr[i] = 0;
+			}
+			for (i = 0; i < 16; i++) {
+				ik[i] = k.arr[i] ^ 0x36363636;
+				ok[i] = k.arr[i] ^ 0x5c5c5c5c;
+			}
+			var a1 = XsltForms_globals.str2msg(str);
+			a1.length += 64;
+			a1.arr = ik.concat(a1.arr);
+			var a2 = XsltForms_globals.crypto(a1, algo);
+			a2.length += 64;
+			a2.arr = ok.concat(a2.arr);
+			return XsltForms_globals.encode(XsltForms_globals.crypto(a2, algo), enco);
 		} ),
 /*jshint bitwise:true */
 ]]>
@@ -1226,29 +1573,256 @@ var XsltForms_xpathCoreFunctions = {
 		} ),
 ]]>
 		<cm:wiki>
-* '''transform(node, stylesheet, inline?)'''</cm:wiki>
+* '''format-number(value, picture)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions format-number" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NODESET, false,
+		function(value, picture) {
+			var i, j, c, l, l2, pictures, dss, ess, gss, ms, ps, pms, zds, ods, msbefore, psafter, pmsafter, signs, iipgp, ipgp, mips, prefix, fstart, fpgp, minfps, maxfps, mes, suffix, dsspos, evalue, esign, s0, s;
+			if (arguments.length !== 2) {
+				throw XsltForms_xpathFunctionExceptions.formatNumberInvalidArgumentsNumber;
+			}
+			value = XsltForms_globals.numberValue(value);
+			if( isNaN(value) ) {
+				return XsltForms_browser.i18n.get("format-number.NaN", "NaN");
+			}
+			pictures = picture.split(XsltForms_browser.i18n.get("format-number.pattern-separator-sign", ";"));
+			picture = value < 0 && pictures[1] ? pictures[1] : pictures[0];
+			signs = ".,-%\u2030#0123456789";
+			esigns = ".,e-%\u2030#0123456789";
+			i = 0;
+			l = picture.length;
+			while (i < l && signs.indexOf(picture.charAt(i)) === -1) {
+				i++;
+			}
+			prefix = picture.substring(0, i);
+			dss = ess = gss = ms = ps = pms = ods = false;
+			mips = 0;
+			minfps = 0;
+			maxfps = 0;
+			mes = 0;
+			iipgp = [];
+			ipgp = [];
+			fpgp = [];
+			while (i < l && esigns.indexOf(picture.charAt(i)) !== -1) {
+				switch (picture.charAt(i)) {
+					case ".":
+						dss = true;
+						fstart = i + 1;
+						j = 0;
+						l2 = iipgp.length;
+						while (j < l2) {
+							ipgp[l2 - j - 1] = i - iipgp[j] - 1;
+							j++;
+						}
+						break;
+					case ",":
+						if (dss) {
+							fpgp.push(i - fstart);
+						} else {
+							iipgp.push(i);
+						}
+						break;
+					case "e":
+						ess = true;
+						if (!dss) {
+							j = 0;
+							l2 = iipgp.length;
+							while (j < l2) {
+								ipgp[l2 - j - 1] = i - iipgp[j] - 1;
+								j++;
+							}
+						}
+						break;
+					case "-":
+						ms = true;
+						msbefore = mips === 0;
+						break;
+					case "%":
+						ps = true;
+						psafter = mips !== 0;
+						value *= 100;
+						if (!dss) {
+							j = 0;
+							l2 = iipgp.length;
+							while (j < l2) {
+								ipgp[l2 - j - 1] = i - iipgp[j] - 1;
+								j++;
+							}
+						}
+						break;
+					case "\u2030":
+						pms = true;
+						pmsafter = mips !== 0;
+						value *= 1000;
+						if (!dss) {
+							j = 0;
+							l2 = iipgp.length;
+							while (j < l2) {
+								ipgp[l2 - j - 1] = i - iipgp[j] - 1;
+								j++;
+							}
+						}
+						break;
+					case "0":
+					case "1":
+					case "2":
+					case "3":
+					case "4":
+					case "5":
+					case "6":
+					case "7":
+					case "8":
+					case "9":
+						if (ess) {
+							mes++;
+						} else if (dss) {
+							minfps++;
+							maxfps++;
+						} else {
+							mips++;
+						}
+						break;
+					case "#":
+						if (dss) {
+							maxfps++;
+						}
+						break;
+				}
+				i++;
+			}
+			if (!dss) {
+				if (iipgp.length !== ipgp.length) {
+					j = 0;
+					l2 = iipgp.length;
+					while (j < l2) {
+						ipgp[l2 - j - 1] = i - iipgp[j] - 1;
+						j++;
+					}
+				}
+				if (mips === 0) {
+					mips = 1;
+				}
+			}
+			if (ipgp.length > 1) {
+				j = 1;
+				l2 = ipgp.length;
+				while (j < l2 && ipgp[j] % ipgp[0] === 0) {
+					j++;
+				}
+				if (j === l2) {
+					ipgp = [ipgp[0]];
+				}
+			}
+			if (ipgp.length === 1) {
+				j = 1;
+				while (j < 30) {
+					ipgp[j] = ipgp[j - 1] + ipgp[0];
+					j++;
+				}
+			}
+			suffix = picture.substring(i);
+			if (value === Number.POSITIVE_INFINITY) {
+				return prefix + XsltForms_browser.i18n.get("format-number.infinity", "Infinity") + suffix;
+			} else if (value === Number.NEGATIVE_INFINITY) {
+				return XsltForms_browser.i18n.get("format-number.minus-sign", "-") + prefix + XsltForms_browser.i18n.get("format-number.infinity", "Infinity") + suffix;
+			}
+			if (value < 0 && pictures.length === 1) {
+				prefix = XsltForms_browser.i18n.get("format-number.minus-sign", "-") + prefix;
+			}
+			if (ess) {
+				evalue = Math.floor(Math.log(value) / Math.LN10) + 1 - mips;
+				value /= Math.pow(10, evalue);
+				esign = evalue < 0 ? XsltForms_browser.i18n.get("format-number.minus-sign", "-") : "";
+				evalue = "" + Math.abs(evalue);
+				evalue = esign + ("000000000000000000000000000000").substr(0, Math.max(0, mes - evalue.length)) + evalue;
+			}
+			s0 = Math.abs(value).toFixed(maxfps);
+			if (maxfps === 0 && dss) {
+				s0 += ".";
+			}
+			dsspos = s0.indexOf(".") === -1 ? s0.length : s0.indexOf(".");
+			if (dsspos < mips) {
+				s0 = ("000000000000000000000000000000").substr(0, mips - dsspos) + s0;
+				dsspos = mips;
+			}
+			j = dsspos - 1;
+			s = "";
+			i = 0;
+			l2 = s0.length;
+			while (j >= 0) {
+				s = s0.charAt(j) + s;
+				if (j !== 0 && ipgp[i] === dsspos - j) {
+					s = XsltForms_browser.i18n.get("format-number.grouping-separator-sign", ",") + s;
+					i++;
+				}
+				j--;
+			}
+			if (dss) {
+				s += XsltForms_browser.i18n.get("format-number.decimal-separator-sign", ".");
+				j = dsspos + 1;
+				i = 0;
+				while (j < l2) {
+					s += s0.charAt(j);
+					if (j !== l2 - 1 && fpgp[i] === j - dsspos) {
+						s += XsltForms_browser.i18n.get("format-number.grouping-separator-sign", ",");
+						i++;
+					}
+					j++;
+				}
+			}
+			if (ps) {
+				if (psafter) {
+					s += XsltForms_browser.i18n.get("format-number.percent-sign", "%");
+				} else {
+					s = XsltForms_browser.i18n.get("format-number.percent-sign", "%") + s;
+				}
+			}
+			if (pms) {
+				if (pmsafter) {
+					s += XsltForms_browser.i18n.get("format-number.per-mille-sign", "%");
+				} else {
+					s = XsltForms_browser.i18n.get("format-number.per-mille-sign", "%") + s;
+				}
+			}
+			if (ess) {
+				s += XsltForms_browser.i18n.get("format-number.exponent-separator-sign", "e") + evalue;
+			}
+			return prefix + s + suffix;
+		} ),
+]]>
+		<cm:wiki>
+* '''transform(node, stylesheet, inline?, param?, value?, ...)'''</cm:wiki>
 <![CDATA[
 	"http://www.w3.org/2002/xforms transform" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
 		function(nodeSet, xslhref, inline) {
-			if (arguments.length >= 4) {
+			if (arguments.length < 3) {
 				throw XsltForms_xpathFunctionExceptions.transformInvalidArgumentsNumber;
 			}
-			xslhref = XsltForms_globals.stringValue(xslhref);
-			return nodeSet.length === 0? "" : XsltForms_browser.transformText(XsltForms_browser.saveXML(nodeSet[0]), xslhref, XsltForms_globals.booleanValue(inline));
+			if (nodeSet.length === 0) {
+				return "";
+			}
+			var args = [];
+			args.push(XsltForms_browser.saveNode(nodeSet[0], "application/xml"));
+			args.push(XsltForms_globals.stringValue(xslhref));
+			args.push(XsltForms_globals.booleanValue(inline));
+			for (var i = 3, len = arguments.length; i < len; i++) {
+				args.push(XsltForms_globals.stringValue(arguments[i]));
+			}
+			return XsltForms_browser.transformText.apply(null, args);
 		} ),
 ]]>
 		<cm:wiki>
 * '''serialize(node?)'''</cm:wiki>
 <![CDATA[
 	"http://www.w3.org/2002/xforms serialize" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NODE, false,
-		function(nodeSet, indent) {
+		function(nodeSet, mediatype, indent) {
 			if (arguments.length >= 1 && typeof nodeSet !== "object") {
 				throw XsltForms_xpathFunctionExceptions.serializeInvalidArgumentType;
 			}
 			if (arguments.length === 0) {
 				throw XsltForms_xpathFunctionExceptions.serializeNoContext;
 			}
-			return nodeSet.length === 0 ? "" : XsltForms_browser.saveXML(nodeSet[0], null, indent === "yes" ? indent : null);
+			return nodeSet.length === 0 ? "" : XsltForms_browser.saveNode(nodeSet[0], mediatype ? XsltForms_globals.stringValue(mediatype) : "application/exml+xml", null, indent === "yes" ? indent : null);
 		} ),
 ]]>
 		<cm:wiki>
@@ -1446,7 +2020,7 @@ var XsltForms_xpathCoreFunctions = {
 			if (arguments.length !== 2) {
 				throw XsltForms_xpathFunctionExceptions.itextInvalidArgumentsNumber;
 			}
-			var itext = document.getElementById(XsltForms_browser.getMeta(ctx.node.ownerDocument.documentElement, "model")).xfElement.itext;
+			var itext = document.getElementById(XsltForms_browser.getDocMeta(ctx.node.ownerDocument, "model")).xfElement.itext;
 			var translation = itext[XsltForms_globals.language] || itext[itext.defaultlang];
 			return translation[id];
 		} ),
@@ -1482,352 +2056,76 @@ var XsltForms_xpathCoreFunctions = {
 		} ),
 ]]>
 		<cm:wiki>
+* '''encode-for-uri(string?)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions encode-for-uri" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(rawString) { 
+			if (arguments.length !== 1) {
+				throw XsltForms_xpathFunctionExceptions.encodeForUriInvalidArgumentsNumber;
+			}
+			return encodeURIComponent(XsltForms_globals.stringValue(rawString));
+		} ),
+]]>
+		<cm:wiki>
 * '''fromtostep(from, to, step)'''</cm:wiki>
 <![CDATA[
 	"http://www.w3.org/2005/xpath-functions fromtostep" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
 		function(from, to, step) {
 			var res = [];
-			for( var i = from; i <= to; i += step ) {
-				res.push({localName:"repeatitem",text:i+"",documentElement:"dummy"});
+			for (var i = from; i <= to; i += step) {
+				res.push({nodeType:Fleur.Node.DOCUMENT_NODE,localName:"repeatitem",text:i+"",documentElement:"dummy",getUserData:function(){return "";}});
 			}
 			return res;
+		} ),
+]]>
+		<cm:wiki>
+* '''tokenize(input, pattern)'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions tokenize" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function(input, pattern) {
+			var tokens = [];
+			input = XsltForms_globals.stringValue(input);
+			pattern = new RegExp(XsltForms_globals.stringValue(pattern.replace(/\\/g, "\\")));
+			var res = input.split(pattern);
+			for (var i = 0, l = res.length; i < l; i++) {
+				tokens.push({localName:"#text",text:res[i],documentElement:"dummy"});
+			}
+			return tokens;
+		} ),
+]]>
+		<cm:wiki>
+* '''invalid-id()'''</cm:wiki>
+<![CDATA[
+	"http://www.w3.org/2005/xpath-functions invalid-id" : new XsltForms_xpathFunction(false, XsltForms_xpathFunction.DEFAULT_NONE, false,
+		function() {
+			return XsltForms_globals.invalid_id_(XsltForms_globals.body);
 		} )
 };
 
-var XsltForms_xpathFunctionExceptions = {
-	lastInvalidArgumentsNumber : {
-		name : "last() : Invalid number of arguments",
-		message : "last() function has no argument"
-	},
-	positionInvalidArgumentsNumber : {
-		name : "position() : Invalid number of arguments",
-		message : "position() function has no argument"
-	},
-	countInvalidArgumentsNumber : {
-		name : "count() : Invalid number of arguments",
-		message : "count() function must have one argument exactly"
-	},
-	countInvalidArgumentType : {
-		name : "count() : Invalid type of argument",
-		message : "count() function must have a nodeset argument"
-	},
-	idInvalidArgumentsNumber : {
-		name : "id() : Invalid number of arguments",
-		message : "id() function must have one argument exactly"
-	},
-	idInvalidArgumentType : {
-		name : "id() : Invalid type of argument",
-		message : "id() function must have a nodeset or string argument"
-	},
-	localNameInvalidArgumentsNumber : {
-		name : "local-name() : Invalid number of arguments",
-		message : "local-name() function must have one argument at most"
-	},
-	localNameInvalidArgumentType : {
-		name : "local-name() : Invalid type of argument",
-		message : "local-name() function must have a nodeset argument"
-	},
-	localNameNoContext : {
-		name : "local-name() : no context node",
-		message : "local-name() function must have a nodeset argument"
-	},
-	namespaceUriInvalidArgumentsNumber : {
-		name : "namespace-uri() : Invalid number of arguments",
-		message : "namespace-uri() function must have one argument at most"
-	},
-	namespaceUriInvalidArgumentType : {
-		name : "namespace-uri() : Invalid type of argument",
-		message : "namespace-uri() function must have a nodeset argument"
-	},
-	nameInvalidArgumentsNumber : {
-		name : "name() : Invalid number of arguments",
-		message : "name() function must have one argument at most"
-	},
-	nameInvalidArgumentType : {
-		name : "name() : Invalid type of argument",
-		message : "name() function must have a nodeset argument"
-	},
-	stringInvalidArgumentsNumber : {
-		name : "string() : Invalid number of arguments",
-		message : "string() function must have one argument at most"
-	},
-	concatInvalidArgumentsNumber : {
-		name : "concat() : Invalid number of arguments",
-		message : "concat() function must have at least two arguments"
-	},
-	startsWithInvalidArgumentsNumber : {
-		name : "starts-with() : Invalid number of arguments",
-		message : "starts-with() function must have two arguments exactly"
-	},
-	endsWithInvalidArgumentsNumber : {
-		name : "ends-with() : Invalid number of arguments",
-		message : "ends-with() function must have two arguments exactly"
-	},
-	containsInvalidArgumentsNumber : {
-		name : "contains() : Invalid number of arguments",
-		message : "contains() function must have two arguments exactly"
-	},
-	substringBeforeInvalidArgumentsNumber : {
-		name : "substring-before() : Invalid number of arguments",
-		message : "substring-before() function must have two arguments exactly"
-	},
-	substringAfterInvalidArgumentsNumber : {
-		name : "substring-after() : Invalid number of arguments",
-		message : "substring-after() function must have two arguments exactly"
-	},
-	substringInvalidArgumentsNumber : {
-		name : "substring() : Invalid number of arguments",
-		message : "substring() function must have two or three arguments"
-	},
-	compareInvalidArgumentsNumber : {
-		name : "compare() : Invalid number of arguments",
-		message : "compare() function must have two arguments exactly"
-	},
-	stringLengthInvalidArgumentsNumber : {
-		name : "string-length() : Invalid number of arguments",
-		message : "string-length() function must have one argument at most"
-	},
-	normalizeSpaceInvalidArgumentsNumber : {
-		name : "normalize-space() : Invalid number of arguments",
-		message : "normalize-space() function must have one argument at most"
-	},
-	translateInvalidArgumentsNumber : {
-		name : "translate() : Invalid number of arguments",
-		message : "translate() function must have three argument exactly"
-	},
-	booleanInvalidArgumentsNumber : {
-		name : "boolean() : Invalid number of arguments",
-		message : "boolean() function must have one argument exactly"
-	},
-	notInvalidArgumentsNumber : {
-		name : "not() : Invalid number of arguments",
-		message : "not() function must have one argument exactly"
-	},
-	trueInvalidArgumentsNumber : {
-		name : "true() : Invalid number of arguments",
-		message : "true() function must have no argument"
-	},
-	falseInvalidArgumentsNumber : {
-		name : "false() : Invalid number of arguments",
-		message : "false() function must have no argument"
-	},
-	langInvalidArgumentsNumber : {
-		name : "lang() : Invalid number of arguments",
-		message : "lang() function must have one argument exactly"
-	},
-	numberInvalidArgumentsNumber : {
-		name : "number() : Invalid number of arguments",
-		message : "number() function must have one argument exactly"
-	},
-	sumInvalidArgumentsNumber : {
-		name : "sum() : Invalid number of arguments",
-		message : "sum() function must have one argument exactly"
-	},
-	sumInvalidArgumentType : {
-		name : "sum() : Invalid type of argument",
-		message : "sum() function must have a nodeset argument"
-	},
-	floorInvalidArgumentsNumber : {
-		name : "floor() : Invalid number of arguments",
-		message : "floor() function must have one argument exactly"
-	},
-	ceilingInvalidArgumentsNumber : {
-		name : "ceiling() : Invalid number of arguments",
-		message : "ceiling() function must have one argument exactly"
-	},
-	roundInvalidArgumentsNumber : {
-		name : "round() : Invalid number of arguments",
-		message : "round() function must have one argument exactly"
-	},
-	powerInvalidArgumentsNumber : {
-		name : "power() : Invalid number of arguments",
-		message : "power() function must have one argument exactly"
-	},
-	randomInvalidArgumentsNumber : {
-		name : "random() : Invalid number of arguments",
-		message : "random() function must have no argument"
-	},
-	booleanFromStringInvalidArgumentsNumber : {
-		name : "boolean-from-string() : Invalid number of arguments",
-		message : "boolean-from-string() function must have one argument exactly"
-	},
-	ifInvalidArgumentsNumber : {
-		name : "if() : Invalid number of arguments",
-		message : "if() function must have three argument exactly"
-	},
-	chooseInvalidArgumentsNumber : {
-		name : "choose() : Invalid number of arguments",
-		message : "choose() function must have three argument exactly"
-	},
-	avgInvalidArgumentsNumber : {
-		name : "avg() : Invalid number of arguments",
-		message : "avg() function must have one argument exactly"
-	},
-	avgInvalidArgumentType : {
-		name : "avg() : Invalid type of argument",
-		message : "avg() function must have a nodeset argument"
-	},
-	minInvalidArgumentsNumber : {
-		name : "min() : Invalid number of arguments",
-		message : "min() function must have one argument exactly"
-	},
-	minInvalidArgumentType : {
-		name : "min() : Invalid type of argument",
-		message : "min() function must have a nodeset argument"
-	},
-	maxInvalidArgumentsNumber : {
-		name : "max() : Invalid number of arguments",
-		message : "max() function must have one argument exactly"
-	},
-	maxInvalidArgumentType : {
-		name : "max() : Invalid type of argument",
-		message : "max() function must have a nodeset argument"
-	},
-	serializeInvalidArgumentType : {
-		name : "serialize() : Invalid type of argument",
-		message : "serialize() function must have a nodeset argument"
-	},
-	countNonEmptyInvalidArgumentsNumber : {
-		name : "count-non-empty() : Invalid number of arguments",
-		message : "count-non-empty() function must have one argument exactly"
-	},
-	countNonEmptyInvalidArgumentType : {
-		name : "count-non-empty() : Invalid type of argument",
-		message : "count-non-empty() function must have a nodeset argument"
-	},
-	indexInvalidArgumentsNumber : {
-		name : "index() : Invalid number of arguments",
-		message : "index() function must have one argument exactly"
-	},
-	nodeIndexInvalidArgumentsNumber : {
-		name : "nodeIndex() : Invalid number of arguments",
-		message : "nodeIndex() function must have one argument exactly"
-	},
-	propertyInvalidArgumentsNumber : {
-		name : "property() : Invalid number of arguments",
-		message : "property() function must have one argument exactly"
-	},
-	propertyInvalidArgument : {
-		name : "property() : Invalid argument",
-		message : "Invalid property name"
-	},
-	instanceInvalidArgumentsNumber : {
-		name : "instance() : Invalid number of arguments",
-		message : "instance() function must have zero or one argument"
-	},
-	nowInvalidArgumentsNumber : {
-		name : "now() : Invalid number of arguments",
-		message : "now() function must have no argument"
-	},
-	localDateInvalidArgumentsNumber : {
-		name : "local-date() : Invalid number of arguments",
-		message : "local-date() function must have no argument"
-	},
-	localDateTimeInvalidArgumentsNumber : {
-		name : "local-dateTime() : Invalid number of arguments",
-		message : "local-dateTime() function must have no argument"
-	},
-	adjustDateTimeToTimezoneInvalidArgumentsNumber: {
-		name : "adjust-dateTime-to-timezone() : Invalid number of arguments",
-		message : "adjust-dateTime-to-timezone() function must have one argument exactly"
-	},
-	daysFromDateInvalidArgumentsNumber : {
-		name : "days-from-date() : Invalid number of arguments",
-		message : "days-from-date() function must have one argument exactly"
-	},
-	daysToDateInvalidArgumentsNumber : {
-		name : "days-to-date() : Invalid number of arguments",
-		message : "days-to-date() function must have one argument exactly"
-	},
-	secondsToDateTimeInvalidArgumentsNumber : {
-		name : "seconds-to-dateTime() : Invalid number of arguments",
-		message : "seconds-to-dateTime() function must have one argument exactly"
-	},
-	secondsFromDateTimeInvalidArgumentsNumber : {
-		name : "seconds-from-dateTime() : Invalid number of arguments",
-		message : "seconds-from-dateTime() function must have one argument exactly"
-	},
-	currentInvalidArgumentsNumber : {
-		name : "current() : Invalid number of arguments",
-		message : "current() function must have no argument"
-	},
-	isValidInvalidArgumentsNumber : {
-		name : "is-valid() : Invalid number of arguments",
-		message : "is-valid() function must have one argument exactly"
-	},
-	isValidInvalidArgumentType : {
-		name : "is-valid() : Invalid type of argument",
-		message : "is-valid() function must have a nodeset argument"
-	},
-	isNonEmptyArrayArgumentsNumber : {
-		name : "is-non-empty-array() : Invalid number of arguments",
-		message : "is-non-empty-array() function must have zero or one argument"
-	},
-	isNonEmptyArrayInvalidArgumentType : {
-		name : "is-non-empty-array() : Invalid type of argument",
-		message : "is-non-empty-array() function must have a node argument"
-	},
-	isCardNumberInvalidArgumentsNumber : {
-		name : "is-card-number() : Invalid number of arguments",
-		message : "is-card-number() function must have one argument exactly"
-	},
-	upperCaseInvalidArgumentsNumber : {
-		name : "upper-case() : Invalid number of arguments",
-		message : "upper-case() function must have one argument exactly"
-	},
-	lowerCaseInvalidArgumentsNumber : {
-		name : "lower-case() : Invalid number of arguments",
-		message : "lower-case() function must have one argument exactly"
-	},
-	distinctValuesInvalidArgumentsNumber : {
-		name : "distinct-values() : Invalid number of arguments",
-		message : "distinct-values() function must have one argument exactly"
-	},
-	transformInvalidArgumentsNumber : {
-		name : "transform() : Invalid number of arguments",
-		message : "transform() function must have two arguments exactly"
-	},
-	serializeNoContext : {
-		name : "serialize() : no context node",
-		message : "serialize() function must have a node argument"
-	},
-	serializeInvalidArgumentsNumber : {
-		name : "serialize() : Invalid number of arguments",
-		message : "serialize() function must have one argument exactly"
-	},
-	eventInvalidArgumentsNumber : {
-		name : "event() : Invalid number of arguments",
-		message : "event() function must have one argument exactly"
-	},
-	alertInvalidArgumentsNumber : {
-		name : "alert() : Invalid number of arguments",
-		message : "alert() function must have one argument exactly"
-	},
-	jsevalInvalidArgumentsNumber : {
-		name : "js-eval() : Invalid number of arguments",
-		message : "js-eval() function must have one argument exactly"
-	},
-	stringJoinInvalidArgumentsNumber : {
-		name : "string-join() : Invalid number of arguments",
-		message : "string-join() function must have one or two arguments"
-	},
-	stringJoinInvalidArgumentType : {
-		name : "string-join() : Invalid type of argument",
-		message : "string-join() function must have a nodeset argument"
-	},
-	itextInvalidArgumentsNumber : {
-		name : "itext() : Invalid number of arguments",
-		message : "itext() function must have one argument"
+XsltForms_globals.invalid_id_ = function(element) {
+	if (element.nodeType !== Fleur.Node.ELEMENT_NODE || element.id === "xsltforms_console" || element.hasXFElement === false) {
+		return "";
 	}
+	var xf = element.xfElement;
+	if (xf && xf.controlName !== "group" && !(xf instanceof Array) && !xf.isRepeat) {
+		return xf.notvalid && !xf.isOutput ? element.id : "";
+	}
+	var childs = element.children || element.childNodes;
+	for (var i = 0, l = childs.length; i < l; i++) {
+		var id = XsltForms_globals.invalid_id_(childs[i]);
+		if (id !== "") {
+			return id;
+		}
+	}
+	return "";
 };
-
-XsltForms_globals.validate_ = function (node) {
-	if (XsltForms_browser.getBoolMeta(node, "notvalid")) {
+XsltForms_globals.validate_ = function(node) {
+	if (XsltForms_browser.getBoolMeta(node, "notvalid") || XsltForms_browser.getBoolMeta(node, "unsafe")) {
 		return false;
 	}
 	var atts = node.attributes || [];
 	for (var i = 0, len = atts.length; i < len; i++) {
-		if (atts[i].nodeName.substr(0,10) !== "xsltforms_" && !XsltForms_globals.validate_(atts[i])) {
+		if (atts[i].nodeName.substr(0,10) !== "xsltforms_" && atts[i].nodeName.substr(0,5) !== "xmlns" && !XsltForms_globals.validate_(atts[i])) {
 			return false;
 		}
 	}

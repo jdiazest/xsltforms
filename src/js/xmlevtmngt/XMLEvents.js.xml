@@ -87,6 +87,10 @@ XsltForms_xmlevents.dispatchList = function(list, name) {
 * '''dispatch''' function : dispatches the given event at a given target with possibly different properties</cm:wiki>
 <![CDATA[
 XsltForms_xmlevents.dispatch = function(target, name, type, bubbles, cancelable, defaultAction, evcontext) {
+	if (!target) {
+		XsltForms_browser.debugConsole.write("ERROR: Cannot dispatch event " + name + " as the target is null");
+		return;
+	}
 	target = target.element || target;
 	XsltForms_browser.assert(target && typeof(target.nodeName) !== "undefined");
 	XsltForms_browser.debugConsole.write("Dispatching event " + name + " on <" + target.nodeName +
@@ -113,7 +117,6 @@ XsltForms_xmlevents.dispatch = function(target, name, type, bubbles, cancelable,
 				defaultAction.call(target.xfElement, event);
 			}
 		} else {
-			var fauxName = "errorupdate";
 			var canceler = null;
 			// Capture phase.
 			var ancestors = [];
@@ -266,7 +269,7 @@ XsltForms_xmlevents.define("xforms-refresh", true, true, function(event) { this.
 *** cancelable : yes
 *** default handler : focus() method</cm:wiki>
 <![CDATA[
-XsltForms_xmlevents.define("xforms-focus", true, true, function(event) { this.focus(); } );
+XsltForms_xmlevents.define("xforms-focus", true, true, function(event) { this.focus ? this.focus() : this.element.focus(); } );
 
 ]]>
 		<cm:wiki>
@@ -489,6 +492,22 @@ XsltForms_xmlevents.define("xforms-load-error", true, false);
 *** default handler : empty</cm:wiki>
 <![CDATA[
 XsltForms_xmlevents.define("xforms-unload-done", true, false);
+]]>
+		<cm:wiki>
+** '''xforms-upload-done''' : fired by the Upload control
+*** bubbles : yes
+*** cancelable : yes
+*** default handler : empty</cm:wiki>
+<![CDATA[
+XsltForms_xmlevents.define("xforms-upload-done", true, false);
+]]>
+		<cm:wiki>
+** '''xforms-upload-error''' : fired by the Upload control
+*** bubbles : yes
+*** cancelable : yes
+*** default handler : empty</cm:wiki>
+<![CDATA[
+XsltForms_xmlevents.define("xforms-upload-error", true, false);
 ]]>
 	</cm:source>
 </cm:component>

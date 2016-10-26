@@ -1,9 +1,9 @@
 <cm:component xmlns:cm="http://www.agencexml.com/cm" name="XFControl.js">
 	<cm:author>Alain Couthures</cm:author>
 	<cm:creationdate>2009-04-07</cm:creationdate>
-	<cm:lastupdate>2009-04-07</cm:lastupdate>
+	<cm:lastupdate>2015-01-25</cm:lastupdate>
 	<cm:licence>
-Copyright (C) 2008-2010 &lt;agenceXML&gt; - Alain COUTHURES
+Copyright (C) 2008-2015 &lt;agenceXML&gt; - Alain COUTHURES
 Contact at : &lt;info@agencexml.com&gt;
 
 Copyright (C) 2006 AJAXForms S.L.
@@ -44,7 +44,9 @@ XsltForms_control.prototype.initFocus = function(element, principal) {
 		this.focusControl = element;
 	}
 	XsltForms_browser.events.attach(element, "focus", XsltForms_control.focusHandler);
+	//XsltForms_browser.events.attach(element, "mousein", XsltForms_control.focusHandler);
 	XsltForms_browser.events.attach(element, "blur", XsltForms_control.blurHandler);
+	//XsltForms_browser.events.attach(element, "mouseout", XsltForms_control.blurHandler);
 };
 
 ]]>
@@ -65,20 +67,20 @@ XsltForms_control.prototype.focus = function(focusEvent, evcontext) {
 		return;
 	}
 	if (XsltForms_globals.focus !== this) {
-		XsltForms_globals.openAction();
+		XsltForms_globals.openAction("XsltForms_control.prototype.focus");
 		XsltForms_globals.blur(true);
 		XsltForms_globals.focus = this;
 		XsltForms_browser.setClass(this.element, "xforms-focus", true);
 		XsltForms_browser.setClass(this.element, "xforms-disabled", false);
 		var parent = this.element.parentNode;
-		while (parent.nodeType === XsltForms_nodeType.ELEMENT) {
+		while (parent.nodeType === Fleur.Node.ELEMENT_NODE) {
 			if (typeof parent.node !== "undefined" && XsltForms_browser.hasClass(parent, "xforms-repeat-item")) {
 				XsltForms_repeat.selectItem(parent);
 			}
 			parent = parent.parentNode;
 		}
 		XsltForms_xmlevents.dispatch(XsltForms_globals.focus, "DOMFocusIn", null, null, null, null, evcontext);
-		XsltForms_globals.closeAction();
+		XsltForms_globals.closeAction("XsltForms_control.prototype.focus");
 		if (this.full && !focusEvent) { // select full
 			this.focusFirst();
 		}
@@ -88,8 +90,12 @@ XsltForms_control.prototype.focus = function(focusEvent, evcontext) {
 	if (fcontrol && !focusEvent) {
 		var control = this.focusControl;
 		var name = control.nodeName.toLowerCase();
-		control.focus();
-		control.focus();
+		try {
+			control.focus();
+			control.focus();
+		} catch (e) {
+			XsltForms_browser.debugConsole.write("ERROR: Could not focus on element " + control);
+		}
 		if (name === "input" || name === "textarea") {
 			try {
 				control.select();
@@ -103,8 +109,8 @@ XsltForms_control.prototype.focus = function(focusEvent, evcontext) {
 		<cm:wiki>
 * '''build_''' method : specific build method updating dependencies</cm:wiki>
 <![CDATA[
-XsltForms_control.prototype.build_ = function(ctx) {
-	var result = this.evaluateBinding(this.binding, ctx);
+XsltForms_control.prototype.build_ = function(ctx, varresolver) {
+	var result = this.evaluateBinding(this.binding, ctx, varresolver);
 	if (typeof result === "object") {
 		var node = result[0];
 		var element = this.element;
@@ -126,12 +132,36 @@ XsltForms_control.prototype.build_ = function(ctx) {
 * '''refresh''' method : refreshes this control according to the value of the corresponding node and dispatches according events</cm:wiki>
 <![CDATA[
 XsltForms_control.prototype.refresh = function() {
+	if (this.controlName === "var") {
+		return;
+	}
 	var element = this.element;
 	var node = element.node;
-	if (node) {
-		var value = XsltForms_browser.getValue(node, true, this.complex);
-		XsltForms_globals.openAction();
-		var changed = value !== this.currentValue || this.nodeChanged;
+	if (this.outputValue !== undefined) {
+		this.setValue(this.outputValue);
+		if (this.controlName !== "var") {
+			this.eventDispatch("xforms-disabled", "xforms-enabled", false);
+		}
+	} else if (node) {
+		var value = this.value instanceof Array ? XsltForms_browser.getValueItemsetCopy(node) : XsltForms_browser.getValue(node, true, this.complex);
+		XsltForms_globals.openAction("XsltForms_control.prototype.refresh");
+		var changed;
+		if (this.currentValue instanceof Array) {
+			changed = false;
+			if (this.currentValue.length !== value.length) {
+				changed = true;
+			} else {
+				for (var i = 0, l = this.currentValue.length; i < l; i++) {
+					if (this.currentValue[i] !== value[i]) {
+						changed = true;
+						break;
+					}
+				}
+			}
+			changed = changed || this.nodeChanged;
+		} else {
+			changed = value !== this.currentValue || this.nodeChanged;
+		}
 		if (this.relevant) {
 			XsltForms_browser.setClass(element, "xforms-disabled", false);
 		}
@@ -139,21 +169,30 @@ XsltForms_control.prototype.refresh = function() {
 		this.changeProp(node, "notrelevant", "xforms-disabled", "xforms-enabled", changed, value);
 		this.changeProp(node, "readonly", "xforms-readonly", "xforms-readwrite", changed, value);
 		this.changeProp(node, "notvalid", "xforms-invalid", "xforms-valid", changed, value);
-		this.currentValue = value;
+		this.currentValue = value instanceof Array ? value.slice(0) : value;
 		if (changed) {
 			this.setValue(value);
 			if (!this.nodeChanged && !this.isTrigger) {
 				XsltForms_xmlevents.dispatch(element, "xforms-value-changed");
 			}
 		}
-		XsltForms_globals.closeAction();
-	} else if (this.outputValue !== undefined) {
-		this.setValue(this.outputValue);
-		XsltForms_browser.setClass(element, "xforms-disabled", false);
+		XsltForms_globals.closeAction("XsltForms_control.prototype.refresh");
 	} else {
-		XsltForms_browser.setClass(element, "xforms-disabled", !this.hasValue);
+		this.eventDispatch("xforms-disabled", "xforms-enabled", !this.hasValue);
 	}
 	this.nodeChanged = false;
+};
+
+]]>
+		<cm:wiki>
+* '''eventdispatch''' method : dispatches corresponding event</cm:wiki>
+<![CDATA[
+XsltForms_control.prototype.eventDispatch = function(onTrue, onFalse, value) {
+	if ((!this.nodeChanged || XsltForms_globals.ready) && !this.isTrigger) {
+		XsltForms_xmlevents.dispatch(this.element, (value? onTrue : onFalse));
+	}
+	XsltForms_browser.setClass(this.element, onTrue, value);
+	XsltForms_browser.setClass(this.element, onFalse, !value);
 };
 
 ]]>
@@ -163,12 +202,8 @@ XsltForms_control.prototype.refresh = function() {
 XsltForms_control.prototype.changeProp = function(node, prop, onTrue, onFalse, changed, nvalue) {
 	var value = (prop === "notvalid" && nvalue === "" && !XsltForms_globals.validationError) ? false : XsltForms_browser.getBoolMeta(node, prop);
 	if (changed || value !== this[prop]) {
-		if (!this.nodeChanged && !this.isTrigger) {
-			XsltForms_xmlevents.dispatch(this.element, (value? onTrue : onFalse));
-		}
+		this.eventDispatch(onTrue, onFalse, value);
 		this[prop] = value;
-		XsltForms_browser.setClass(this.element, onTrue, value);
-		XsltForms_browser.setClass(this.element, onFalse, !value);
 		if(prop === "readonly" && this.changeReadonly) {
 			this.changeReadonly();
 		}
@@ -179,20 +214,44 @@ XsltForms_control.prototype.changeProp = function(node, prop, onTrue, onFalse, c
 		<cm:wiki>
 * '''valueChanged''' method : changes the value of this control and dispatches the "xforms-recalculate" event</cm:wiki>
 <![CDATA[
-XsltForms_control.prototype.valueChanged = function(value) {
+XsltForms_control.prototype.valueChanged = function(value, force) {
 	var node = this.element.node;
-	var model = document.getElementById(XsltForms_browser.getMeta(node.ownerDocument.documentElement, "model")).xfElement;
+	var model = document.getElementById(XsltForms_browser.getDocMeta(node.ownerDocument, "model")).xfElement;
 	var schtyp = XsltForms_schema.getType(XsltForms_browser.getType(node) || "xsd_:string");
-	if (value && value.length > 0 && schtyp.parse) {
+	if (value && !(value instanceof Array) && value.length > 0 && schtyp.parse) {
 		try { value = schtyp.parse(value); } catch(e) { }
 	}
-	if (value !== XsltForms_browser.getValue(node)) {
-		XsltForms_globals.openAction();
-		XsltForms_browser.setValue(node, value);
-		model.addChange(node);
-		XsltForms_xmlevents.dispatch(model, "xforms-recalculate");
-		XsltForms_globals.refresh();
-		XsltForms_globals.closeAction();
+	var changed;
+	if (value instanceof Array) {
+		var prevvalue = XsltForms_browser.getValueItemsetCopy(node);
+		changed = true;
+		var i = 0, l = value.length;
+		if (prevvalue.length === l) {
+			changed = false;
+			for (; i < l; i++) {
+				if (prevvalue[i] !== value[i]) {
+					changed = true;
+					break;
+				}
+			}
+		}
+	} else {
+		changed = value !== XsltForms_browser.getValue(node);
+	}
+	if (changed || force) {
+		if (value instanceof Array || this.currentValue instanceof Array) {
+			XsltForms_browser.setValue(node, value);
+			model.addChange(node);
+			XsltForms_globals.addChange(model);
+			model.setRebuilded(true);
+		} else {
+			XsltForms_globals.openAction("XsltForms_control.prototype.valueChanged");
+			XsltForms_browser.setValue(node, value);
+			model.addChange(node);
+			XsltForms_xmlevents.dispatch(model, "xforms-recalculate");
+			XsltForms_globals.refresh();
+			XsltForms_globals.closeAction("XsltForms_control.prototype.valueChanged");
+		}
 	}
 };
 
@@ -232,7 +291,8 @@ XsltForms_control.focusHandler = function() {
 XsltForms_control.blurHandler = function() {
 	if (XsltForms_control.getXFElement(this) === XsltForms_globals.focus) {
 		XsltForms_globals.posibleBlur = true;
-		setTimeout(function(){XsltForms_globals.blur();}, 200);
+		//setTimeout(function(){XsltForms_globals.blur();}, 200);
+		XsltForms_globals.blur();
 	}
 };
     ]]>

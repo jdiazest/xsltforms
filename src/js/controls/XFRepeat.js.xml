@@ -1,9 +1,9 @@
 <cm:component xmlns:cm="http://www.agencexml.com/cm" name="XFRepeat.js">
 	<cm:author>Alain Couthures</cm:author>
 	<cm:creationdate>2009-04-07</cm:creationdate>
-	<cm:lastupdate>2010-06-08</cm:lastupdate>
+	<cm:lastupdate>2015-02-17</cm:lastupdate>
 	<cm:licence>
-Copyright (C) 2008-2010 &lt;agenceXML&gt; - Alain COUTHURES
+Copyright (C) 2008-2015 &lt;agenceXML&gt; - Alain COUTHURES
 Contact at : &lt;info@agencexml.com&gt;
 
 Copyright (C) 2006 AJAXForms S.L.
@@ -32,6 +32,7 @@ Repeat Element Class
 function XsltForms_repeat(subform, id, nbsiblings, binding, clone) {
 	XsltForms_globals.counters.repeat++;
 	this.init(subform, id);
+	this.controlName = "repeat";
 	this.nbsiblings = nbsiblings;
 	this.binding = binding;
 	this.index = 1;
@@ -62,12 +63,12 @@ XsltForms_repeat.prototype.setIndex = function(index) {
 	if (this.index !== index) {
 		var node = this.nodes[index - 1];
 		if (node) {    
-			XsltForms_globals.openAction();
+			XsltForms_globals.openAction("XsltForms_repeat.prototype.setIndex");
 			this.index = index;
 			this.element.node = node;
 			XsltForms_globals.addChange(this);
-			XsltForms_globals.addChange(document.getElementById(XsltForms_browser.getMeta(node.ownerDocument.documentElement, "model")).xfElement);
-			XsltForms_globals.closeAction();
+			XsltForms_globals.addChange(document.getElementById(XsltForms_browser.getDocMeta(node.ownerDocument, "model")).xfElement);
+			XsltForms_globals.closeAction("XsltForms_repeat.prototype.setIndex");
 		}
 	}
 };
@@ -119,25 +120,27 @@ XsltForms_repeat.prototype.insertNode = function(node, nodeAfter) {
 XsltForms_repeat.prototype.build_ = function(ctx) {
 	var nodes0 = this.evaluateBinding(this.binding, ctx);
 	var nodes = [];
+	var r0, r, l, child;
 	for (var n = 0, ln = nodes0.length; n < ln; n++) {
 		if (!XsltForms_browser.getBoolMeta(nodes0[n], "notrelevant")) {
 			nodes.push(nodes0[n]);
 		}
 	}
+	var inputids = {ids: {}, fors: {}};
 	this.nodes = nodes;
 	n = nodes.length;
 	if (this.nbsiblings === 0) {
-		var r = this.root;
-		while (r.firstChild.nodeType === XsltForms_nodeType.TEXT) {
+		r = this.root;
+		while (r.firstChild.nodeType === Fleur.Node.TEXT_NODE) {
 			r.removeChild(r.firstChild);
 		}
-		var r0 = r.children ? r.children[0] : r.childNodes[0];
+		r0 = r.children ? r.children[0] : r.childNodes[0];
 		XsltForms_repeat.forceOldId(r0);
-		var l = r.children ? r.children.length : r.childNodes.length;
+		l = r.children ? r.children.length : r.childNodes.length;
 		for (var i = l; i < n; i++) {
-			var child = r0.cloneNode(true);
+			child = r0.cloneNode(true);
 			r.appendChild(child);
-			XsltForms_repeat.initClone(child);
+			XsltForms_repeat.initClone(child, inputids);
 		}
 		for (var j = n; j < l && r.childNodes.length > 1; j++) {
 			XsltForms_globals.dispose(r.lastChild);
@@ -152,9 +155,9 @@ XsltForms_repeat.prototype.build_ = function(ctx) {
 			}
 		}
 	} else {
-		var r0 = this.root;
+		r0 = this.root;
 		XsltForms_repeat.forceOldId(r0);
-		var r = r0.parentNode;
+		r = r0.parentNode;
 		var cc = r.firstChild;
 		var i0 = 0;
 		while (cc) {
@@ -164,25 +167,25 @@ XsltForms_repeat.prototype.build_ = function(ctx) {
 			i0++;
 			cc = cc.nextSibling;
 		}
-		var l = 1;
+		l = 1;
 		var rl = r.childNodes[i0 + this.nbsiblings];
 		while (rl && (rl.id === this.element.id || rl.attributes.oldid.value === this.element.id)) {
 			l++;
 			rl = r.childNodes[i0 + l*this.nbsiblings];
 		}
-		for (var i = l; i < n; i++) {
-			var child = r0.cloneNode(true);
+		for (var ib = l; ib < n; ib++) {
+			child = r0.cloneNode(true);
 			r.insertBefore(child, rl);
-			XsltForms_repeat.initClone(child);
+			XsltForms_repeat.initClone(child, inputids);
 			delete child.xfElement;
 			var r0s = r0.nextSibling;
 			for (var isb = 1; isb < this.nbsiblings; isb++, r0s = r0s.nextSibling) {
-				child = r0s.cloneNode(true)
+				child = r0s.cloneNode(true);
 				r.insertBefore(child, rl);
-				XsltForms_repeat.initClone(child);
+				XsltForms_repeat.initClone(child, inputids);
 			}
 		}
-		for (var j = n; j < l; j++) {
+		for (var jb = n; jb < l; jb++) {
 			var rj = r.childNodes[i0 + (n+1)*this.nbsiblings];
 			if (!(rj && (rj.id === this.element.id || rj.attributes.oldid.value === this.element.id))) {
 				break;
@@ -192,19 +195,31 @@ XsltForms_repeat.prototype.build_ = function(ctx) {
 				r.removeChild(r.children[i0 + n*this.nbsiblings]);
 			}
 		}
-		for (var k = 0; k < n; k++) {
+		for (var kb = 0; kb < n; kb++) {
 			XsltForms_browser.setMeta(nodes[k], "repeat", this.element.id);
 			if (r.children) {
-				r.children[i0 + k*this.nbsiblings].node = nodes[k];
+				r.children[i0 + kb*this.nbsiblings].node = nodes[kb];
 			} else {
-				r.childNodes[i0 + k*this.nbsiblings].node = nodes[k];
+				r.childNodes[i0 + kb*this.nbsiblings].node = nodes[kb];
 			}
 		}
 	}
-	if (this.index > n) {
-		this.index = 1;
+	for (var ii = 0; ii < n; ii++) {
+		if (this.element.node === nodes[ii]) {
+			if (this.index !== ii + 1) {
+				this.index = ii + 1;
+				XsltForms_globals.addChange(this);
+				XsltForms_globals.addChange(this.element.node.ownerDocument.model);
+			}
+			return;
+		}
 	}
-	this.element.node = nodes[this.index - 1];
+	this.element.node = nodes[0];
+	if (this.index !== 1) {
+		this.index = 1;
+		XsltForms_globals.addChange(this);
+		XsltForms_globals.addChange(this.element.node.ownerDocument.model);
+	}
 };
 
 ]]>
@@ -247,10 +262,25 @@ XsltForms_repeat.prototype.clone = function(id) {
 		<cm:wiki>
 * '''initClone''' function : initializes a clone for the given id</cm:wiki>
 <![CDATA[
-XsltForms_repeat.initClone = function(element) {
+XsltForms_repeat.initClone = function(element, inputids) {
+	if ("LABEL" === element.nodeName.toUpperCase() && element.getAttribute("for") !== "") {
+		if (inputids.ids[element.getAttribute("for")]) {
+			element.setAttribute("for", inputids.ids[element.getAttribute("for")]);
+		} else {
+			inputids.fors[element.getAttribute("for")] = element;
+		}
+	}
 	var id = element.id;
 	if (id) {
 		XsltForms_idManager.cloneId(element);
+		if ("INPUT" === element.nodeName.toUpperCase()) {
+			if (inputids.fors[id]) {
+				inputids.fors[id].setAttribute("for", element.id);
+				delete inputids.ids[id];
+			} else {
+				inputids.ids[id] = element.id;
+			}
+		}
 		element.xfElement = null;
 		var oldid = element.getAttribute("oldid");
 		var original = document.getElementById(oldid);
@@ -271,6 +301,15 @@ XsltForms_repeat.initClone = function(element) {
 			}
 		}
 	}
+	var parentXF = element.parentNode.xfElement;
+	if (parentXF && parentXF.isComponent && parentXF.valueElement === element) {
+		if (parentXF.evaljs) {
+			eval(parentXF.subjs);
+			parentXF.evaljs = false;
+		}
+		return;
+	}
+	//var oldinputids = {ids: inputids.ids.slice(0), fors: inputids.fors.slice(0)};
 	var next = element.firstChild;
 	while (next) {
 		var child = next;
@@ -278,7 +317,7 @@ XsltForms_repeat.initClone = function(element) {
 		if (child.id && child.getAttribute("cloned")) {
 			element.removeChild(child);
 		} else {
-			XsltForms_repeat.initClone(child);
+			XsltForms_repeat.initClone(child, inputids);
 		}
 	}
 };

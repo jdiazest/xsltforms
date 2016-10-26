@@ -29,7 +29,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 Listener  Class
 * constructor function : creates a Listener object to an observer element and attaches a standard callback function</cm:wiki>
 		<![CDATA[
-function XsltForms_listener(subform, observer, evtTarget, name, phase, handler) {
+function XsltForms_listener(subform, observer, evtTarget, name, phase, handler, defaultaction) {
 	phase = phase || "default";
 	if (phase !== "default" && phase !== "capture") {
 		XsltForms_globals.error(XsltForms_globals.defaultModel, "xforms-compute-exception", 
@@ -43,11 +43,14 @@ function XsltForms_listener(subform, observer, evtTarget, name, phase, handler) 
 	this.evtName = document.addEventListener? name : "errorupdate";
 	this.phase = phase;
 	this.handler = handler;
+	this.defaultaction = defaultaction;
 	XsltForms_browser.assert(observer);
-	if (observer.listeners && name === "xforms-subform-ready") {
-		for (var i = 0, l = observer.listeners.length; i < l; i++) {
-			if (observer.listeners[i].name === name) {
-				return;
+	if (observer.listeners) {
+		if (name === "xforms-subform-ready") {
+			for (var i = 0, l = observer.listeners.length; i < l; i++) {
+				if (observer.listeners[i].name === name) {
+					return;
+				}
 			}
 		}
 	} else {
@@ -84,20 +87,26 @@ function XsltForms_listener(subform, observer, evtTarget, name, phase, handler) 
 		if (event.target && event.target.nodeType === 3) {
 			event.target = event.target.parentNode;
 		}
-		if (event.currentTarget && event.type === "DOMActivate" && event.target.nodeName === "BUTTON" && !XsltForms_browser.isFF2) {
+		if (event.currentTarget && event.type === "DOMActivate" && (event.target.nodeName.toUpperCase() === "BUTTON" || event.target.nodeName.toUpperCase() === "A" || (XsltForms_browser.isChrome && event.eventPhase === 3 && this.xfElement.controlName === "trigger"))  && !XsltForms_browser.isFF2) {
 			effectiveTarget = false;
 		}
-		if (event.eventPhase === 3 && !event.target.xfElement && !XsltForms_browser.isFF2) {
-			effectiveTarget = false;
-		}
+//		if (event.eventPhase === 3 && !event.target.xfElement && !XsltForms_browser.isFF2) {
+//			effectiveTarget = false;
+//		}
 		if (event.eventPhase === 3 && event.target.xfElement && event.target === event.currentTarget && !XsltForms_browser.isFF2) {
 			effectiveTarget = false;
 		}
-		if (evtTarget && event.target != evtTarget) {
+		if (evtTarget && event.target !== evtTarget) {
 			effectiveTarget = false;
 		}
-		if (effectiveTarget) {
+		if (effectiveTarget && !(event instanceof UIEvent)) {
+			XsltForms_browser.debugConsole.write("Captured event " + name + " on <" + event.target.nodeName +
+				(event.target.className? " class=\"" + (typeof event.target.className === "string" ? event.target.className : event.target.className.baseVal) + "\"" : "") +
+				(event.target.id? " id=\"" + event.target.id + "\"" : "") + "/>");
 			handler.call(event.target, event);
+		}
+		if (!defaultaction) {
+			event.preventDefault();
 		}
 		if (!document.addEventListener) {
 			try {
@@ -107,7 +116,9 @@ function XsltForms_listener(subform, observer, evtTarget, name, phase, handler) 
 		}
 	};
 	this.attach();
-	subform.listeners.push(this);
+	if (subform) {
+		subform.listeners.push(this);
+	}
 }
 
 ]]>
@@ -144,7 +155,7 @@ XsltForms_listener.prototype.detach = function() {
 * '''clone''' method : creates a new listener for the given element</cm:wiki>
 <![CDATA[
 XsltForms_listener.prototype.clone = function(element) {
-	var unused = new XsltForms_listener(this.subform, element, this.evtTarget, this.name, this.phase, this.handler);
+	return new XsltForms_listener(this.subform, element, this.evtTarget, this.name, this.phase, this.handler);
 };
 ]]>
 	</cm:source>

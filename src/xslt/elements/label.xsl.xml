@@ -24,10 +24,21 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	</cm:licence>
 	<cm:source type="application/xml">
-		<xsl:template match="xforms:label" xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xforms="http://www.w3.org/2002/xforms" priority="2">
+		<xsl:template match="xforms:label" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xforms="http://www.w3.org/2002/xforms" priority="2">
 			<xsl:param name="appearance" select="'undefined'"/>
 			<xsl:param name="parentworkid"/>
 			<xsl:param name="workid" select="concat(position(),'_',$parentworkid)"/>
+			<xsl:param name="inputid"/>
+			<xsl:variable name="inputidfor">
+				<xsl:choose>
+					<xsl:when test="@for != ''">
+						<xsl:value-of select="concat($id_pf, 'input-', @for)"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="$inputid"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:variable>
 			<xsl:choose>
 				<xsl:when test="$appearance = 'groupTitle'">
 					<div>
@@ -123,7 +134,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 					</span>
 				</xsl:when>
 				<xsl:when test="$appearance = 'item'">
-					<span>
+					<label>
+						<xsl:if test="$inputidfor != ''">
+							<xsl:attribute name="for"><xsl:value-of select="$inputidfor"/></xsl:attribute>
+						</xsl:if>
 						<xsl:call-template name="genid">
 							<xsl:with-param name="workid" select="$workid"/>
 						</xsl:call-template>
@@ -138,7 +152,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 							</xsl:when>
 							<xsl:otherwise>&#160;<xsl:text/></xsl:otherwise>
 						</xsl:choose>
-					</span>
+					</label>
 				</xsl:when>
 				<xsl:when test="$appearance = 'field-minimal' and ../xforms:help[@appearance='minimal' and @href]">
 					<a class="xforms-help xforms-minimal-help-link" href="{../xforms:help/@href}">
@@ -160,6 +174,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 				</xsl:when>
 				<xsl:when test="$appearance = 'field-minimal' and not(../xforms:help[@appearance='minimal' and @href])">
 					<label>
+						<xsl:if test="$inputidfor != ''">
+							<xsl:attribute name="for"><xsl:value-of select="$inputidfor"/></xsl:attribute>
+						</xsl:if>
 						<xsl:call-template name="comunLabel">
 							<xsl:with-param name="workid" select="$workid"/>
 							<xsl:with-param name="class">xforms-appearance-minimal</xsl:with-param>
@@ -230,8 +247,54 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 						</label>
 					</a>
 				</xsl:when>
+				<xsl:when test="../xforms:help[@appearance='minimal' and not(@href)]">
+					<span class="xforms-help">
+						<xsl:variable name="hid">
+							<xsl:choose>
+								<xsl:when test="../xforms:help/@id"><xsl:value-of select="../xforms:help/@id"/></xsl:when>
+								<xsl:otherwise>
+									<xsl:for-each select="node()">
+										<xsl:if test="self::xforms:help and not(preceding-sibling::xforms:help)">
+											<xsl:value-of select="concat($id_pf,'help-',position(),'_',$workid)"/>
+										</xsl:if>
+									</xsl:for-each>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:variable>
+						<xsl:variable name="helpworkid">
+							<xsl:for-each select="../xforms:help/node()">
+								<xsl:if test="self::xforms:help and not(preceding-sibling::xforms:help)">
+									<xsl:value-of select="concat(position(),'_',$workid)"/>
+								</xsl:if>
+							</xsl:for-each>
+						</xsl:variable>
+						<span onmouseover="XsltForms_browser.show(this, 'help', true)" onmouseout="XsltForms_browser.show(this, 'help', false)">
+							<label>
+								<xsl:call-template name="comunLabel">
+									<xsl:with-param name="workid" select="$workid"/>
+								</xsl:call-template>
+								<xsl:choose>
+									<xsl:when test="count(./node()) &gt; 0">
+										<xsl:apply-templates select="node()">
+											<xsl:with-param name="parentworkid" select="$workid"/>
+										</xsl:apply-templates>
+									</xsl:when>
+									<xsl:otherwise>&#xA0;<xsl:text/></xsl:otherwise>
+								</xsl:choose>
+							</label>
+						</span>
+						<span class="xforms-help-value" id="{$hid}">
+							<xsl:apply-templates select="../xforms:help/node()">
+								<xsl:with-param name="parentworkid" select="$helpworkid"/>
+							</xsl:apply-templates>
+						</span>
+					</span>
+				</xsl:when>
 				<xsl:otherwise>
 					<label>
+						<xsl:if test="$inputidfor != ''">
+							<xsl:attribute name="for"><xsl:value-of select="$inputidfor"/></xsl:attribute>
+						</xsl:if>
 						<xsl:call-template name="comunLabel">
 							<xsl:with-param name="workid" select="$workid"/>
 						</xsl:call-template>

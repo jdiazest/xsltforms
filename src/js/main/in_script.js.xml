@@ -54,7 +54,7 @@ if (typeof xsltforms_d0 === "undefined") {
 				document.addEventListener("load", func, false);
 			} else if (window.attachEvent) {
 				window.attachEvent("onload", func);
-			} else if (typeof window.onload != "function") {
+			} else if (typeof window.onload !== "function") {
 				window.onload = func;
 			} else {
 				var oldonload = window.onload;
@@ -66,6 +66,9 @@ if (typeof xsltforms_d0 === "undefined") {
 		};
 		var xftrans = function () {
 			var conselt = document.createElement("div");
+			conselt.setAttribute("id", "xsltforms_console");
+			document.getElementsByTagName("body")[0].appendChild(conselt);
+			conselt = document.createElement("div");
 			conselt.setAttribute("id", "statusPanel");
 			conselt.setAttribute("style", "display: none; z-index: 99; top: 294.5px; left: 490px;");
 			conselt.innerHTML = "... Loading ...";
@@ -100,22 +103,22 @@ if (typeof xsltforms_d0 === "undefined") {
 						var scripttxt = document.createTextNode(mainjs);
 						newelt.appendChild(scripttxt);
 					}
-					var panel = document.getElementById("statusPanel");
-					panel.parentNode.removeChild(panel);
+					//var panel = document.getElementById("statusPanel");
+					//panel.parentNode.removeChild(panel);
 					document.getElementsByTagName("body")[0].appendChild(newelt);
 					var subbody = "<!-- xsltforms-mainform " + sp[4] + " xsltforms-mainform -->";
 					elts[i].outerHTML = subbody;
 				}
 			}
-		}
+		};
 		var xsltforms_init = function () {
 			try {
 				xftrans();
 				xsltforms_initImpl();
 			} catch(e) {
-				alert("XSLTForms Exception\n--------------------------\n\nIncorrect Javascript code generation:\n\n"+(typeof(e.stack)=="undefined"?"":e.stack)+"\n\n"+(e.name?e.name+(e.message?"\n\n"+e.message:""):e));
+				alert("XSLTForms Exception\n--------------------------\n\nIncorrect Javascript code generation:\n\n"+(typeof(e.stack)==="undefined"?"":e.stack)+"\n\n"+(e.name?e.name+(e.message?"\n\n"+e.message:""):e));
 			}
-		}
+		};
 		if (document.readyState === "complete") {
 			xsltforms_init();
 		} else {

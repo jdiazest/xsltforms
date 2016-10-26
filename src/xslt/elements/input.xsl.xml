@@ -24,18 +24,21 @@ License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 	</cm:licence>
 	<cm:source type="application/xml">
-		<xsl:template match="xforms:input" xmlns="http://www.w3.org/1999/xhtml" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xforms="http://www.w3.org/2002/xforms" priority="2">
+		<xsl:template match="xforms:input" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xforms="http://www.w3.org/2002/xforms" priority="2">
 			<xsl:param name="appearance" select="false()"/>
 			<xsl:param name="parentworkid"/>
 			<xsl:param name="workid" select="concat(position(),'_',$parentworkid)"/>
+			<xsl:variable name="inputid"><xsl:choose><xsl:when test="@id"><xsl:value-of select="concat($id_pf, 'input-', @id)"/></xsl:when><xsl:otherwise><xsl:value-of select="concat($id_pf, 'input-', local-name(), '-', $workid)"/></xsl:otherwise></xsl:choose></xsl:variable>
 			<xsl:call-template name="field">
 				<xsl:with-param name="workid" select="$workid"/>
 				<xsl:with-param name="appearance" select="$appearance"/>
 				<xsl:with-param name="body">
-					<input type="text">
+					<input type="text" id="{$inputid}">
+						<xsl:copy-of select="@*[local-name() != 'ref' and local-name() != 'id' and local-name() != 'class' and local-name() != 'type']"/>
 						<xsl:call-template name="comun"/>
 					</input>
 				</xsl:with-param>
+				<xsl:with-param name="inputid" select="$inputid"/>
 			</xsl:call-template>
 		</xsl:template>
 	</cm:source>

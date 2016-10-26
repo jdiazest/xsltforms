@@ -1,9 +1,9 @@
 <cm:component xmlns:cm="http://www.agencexml.com/cm" name="XFLoad.js">
 	<cm:author>Alain Couthures</cm:author>
 	<cm:creationdate>2009-04-07</cm:creationdate>
-	<cm:lastupdate>2009-04-07</cm:lastupdate>
+	<cm:lastupdate>2015-02-14</cm:lastupdate>
 	<cm:licence>
-Copyright (C) 2008-2010 &lt;agenceXML&gt; - Alain COUTHURES
+Copyright (C) 2008-2015 &lt;agenceXML&gt; - Alain COUTHURES
 Contact at : &lt;info@agencexml.com&gt;
 
 Copyright (C) 2006 AJAXForms S.L.
@@ -34,7 +34,7 @@ function XsltForms_load(subform, binding, resource, show, targetid, instance, if
 	this.binding = binding;
 	this.resource = resource;
 	this.show = show;
-	this.targetid = targetid;
+	this.targetid = targetid || "_self";
 	this.instance = instance;
 	this.init(ifexpr, whileexpr, iterateexpr);
 }
@@ -47,14 +47,19 @@ XsltForms_load.prototype = new XsltForms_abstractAction();
 <![CDATA[
 XsltForms_load.prototype.run = function(element, ctx) {
 	var href = this.resource;
+	var node;
 	if (this.binding) {
-		var node = this.binding.evaluate(ctx)[0];
+		var varresolver = this.parentAction ? this.parentAction.varResolver : element.xfElement.varResolver;
+		node = this.binding.bind_evaluate(this.subform, ctx, varresolver)[0];
 		if (node) {
-			href = XsltForms_browser.getValue(node);
+			var t = XsltForms_schema.getType(XsltForms_browser.getType(node));
+			if (!t.hasBase("xf:HTMLFragment")) {
+				href = XsltForms_browser.getValue(node);
+			}
 		}
 	} else {
 		if (href && typeof href === 'object') {
-			href = XsltForms_globals.stringValue(this.resource.xpath.evaluate(ctx));
+			href = XsltForms_globals.stringValue(this.resource.xpath.xpath_evaluate(ctx));
 		} else {
 			if (typeof href === 'string') {
 				href = XsltForms_browser.unescape(href); 
@@ -68,13 +73,14 @@ XsltForms_load.prototype.run = function(element, ctx) {
 			} catch (e) {
 				alert("XSLTForms Exception\n--------------------------\n\nError evaluating the following Javascript expression :\n\n"+href.substr(11)+"\n\n"+e);
 			}
-		} else if (this.show === "new") {
+		} else if (this.show === "new" || this.targetid === "_blank") {
 			window.open(href);
-		} else if (this.show === "embed") {
-			XsltForms_globals.openAction();
+		} else if (this.show === "embed" || (this.targetid !== "" && this.targetid !== "_blank" && this.targetid !== "_self")) {
+			XsltForms_globals.openAction("XsltForms_load.prototype.run");
 			var req = null;
 			var method = "get";
 			var evcontext = {"method": method, "resource-uri": href};
+			var subformidx = XsltForms_globals.nbsubforms++;
 			try {
 				req = XsltForms_browser.openRequest(method, href, false);
 				XsltForms_browser.debugConsole.write("Load " + href);
@@ -82,11 +88,11 @@ XsltForms_load.prototype.run = function(element, ctx) {
 				if (req.status !== 0 && (req.status < 200 || req.status >= 300)) {
 					evcontext["error-type"] = "resource-error";
 					this.issueLoadException_(evcontext, req, null);
-					XsltForms_globals.closeAction();
+					XsltForms_globals.closeAction("XsltForms_load.prototype.run");
 					return;
 				}
 				XsltForms_submission.requesteventlog(evcontext, req);
-				XsltForms_globals.closeAction();
+				XsltForms_globals.closeAction("XsltForms_load.prototype.run");
 				var resp = req.responseText;
 				var piindex = resp.indexOf("<?xml-stylesheet", 0);
 				while ( piindex !== -1) {
@@ -101,17 +107,17 @@ XsltForms_load.prototype.run = function(element, ctx) {
 				if (sp.length === 1) {
 					subbody = resp;
 				} else {
-					subjs = "/* xsltforms-subform-" + XsltForms_globals.nbsubforms + " " + sp[2] + " xsltforms-subform-" + XsltForms_globals.nbsubforms + " */";
+					subjs = "/* xsltforms-subform-" + subformidx + " " + sp[2] + " xsltforms-subform-" + subformidx + " */";
 					var imain = subjs.indexOf('"xsltforms-mainform"');
 					var targetsubform = targetelt.xfSubform;
 					if (targetsubform) {
 						targetsubform.dispose();
 					}
-					subjs = '(function(){var xsltforms_subform_eltid = "' + targetelt.id + '";var xsltforms_parentform = XsltForms_subform.subforms["' + this.subform.id + '"];' + subjs.substring(0, imain) + '"xsltforms-subform-' + XsltForms_globals.nbsubforms + '"' + subjs.substring(imain + 20) + "})();";
-					subbody = "<!-- xsltforms-subform-" + XsltForms_globals.nbsubforms + " " + sp[4] + " xsltforms-subform-" + XsltForms_globals.nbsubforms + " -->"
+					subjs = '(function(){var xsltforms_subform_eltid = "' + targetelt.id + '";var xsltforms_parentform = XsltForms_subform.subforms["' + this.subform.id + '"];' + subjs.substring(0, imain) + '"xsltforms-subform-' + subformidx + '"' + subjs.substring(imain + 20) + "})();";
+					subbody = "<!-- xsltforms-subform-" + subformidx + " " + sp[4] + " xsltforms-subform-" + subformidx + " -->";
 					imain = subbody.indexOf(' id="xsltforms-mainform');
 					while (imain !== -1) {
-						subbody = subbody.substring(0, imain) + ' id="xsltforms-subform-' + XsltForms_globals.nbsubforms + subbody.substring(imain + 23);
+						subbody = subbody.substring(0, imain) + ' id="xsltforms-subform-' + subformidx + subbody.substring(imain + 23);
 						imain = subbody.indexOf(' id="xsltforms-mainform');
 					}
 				}
@@ -131,7 +137,7 @@ XsltForms_load.prototype.run = function(element, ctx) {
 				}
 				if (sp.length !== 1) {
 					var scriptelt = XsltForms_browser.isXhtml ? document.createElementNS("http://www.w3.org/1999/xhtml", "script") : document.createElement("script");
-					scriptelt.setAttribute("id", "xsltforms-subform-" + XsltForms_globals.nbsubforms + "-script");
+					scriptelt.setAttribute("id", "xsltforms-subform-" + subformidx + "-script");
 					scriptelt.setAttribute("type", "text/javascript");
 					if (XsltForms_browser.isIE) {
 						scriptelt.text = subjs;
@@ -145,31 +151,31 @@ XsltForms_load.prototype.run = function(element, ctx) {
 				if (targetxf) {
 					XsltForms_xmlevents.dispatch(targetxf, "xforms-load-done", null, null, null, null, evcontext);
 				}
-				XsltForms_globals.nbsubforms++;
 			} catch(e2) {
 				XsltForms_browser.debugConsole.write(e2.message || e2);
 				evcontext["error-type"] = "resource-error";
 				this.issueLoadException_(evcontext, req, e2);
-				XsltForms_globals.closeAction();
+				XsltForms_globals.closeAction("XsltForms_load.prototype.run");
 			}
 		} else {
 			location.href = href;
 		}
 	} else {
-		if (this.instance) {
-			var instance = document.getElementById(this.instance);
-			if (!instance) { throw {name: "instance " + this.instance + " not found"}; }
-			var ser = XsltForms_browser.saveXML(instance.xfElement.doc.documentElement);
-			var lw;
-			if (this.show === "new") {
-				lw = window.open('data:text/xml,' + ser, this.instance);
-				lw.document.close();
-			} else {
-				if (this.show === "replace") {
-					lw = window.open("about:blank", _self);
-					lw.document.write(ser);
+		if (node) {
+			try {
+				var v = XsltForms_browser.getValue(node).replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+				var lw;
+				if (this.show === "new" || this.targetid === "_blank") {
+					lw = window.open("about:blank","_blank");
+					lw.document.write(v);
+					lw.document.close();
+				} else {
+					lw = window.open("about:blank", "_self");
+					lw.document.write(v);
 					lw.document.close();
 				}
+			} catch (e) {
+				XsltForms_browser.debugConsole.write("ERROR: Load:" + e.message);
 			}
 		}
 	}
@@ -195,7 +201,7 @@ XsltForms_load.prototype.issueLoadException_ = function(evcontext, req, ex) {
 XsltForms_load.subform = function(resource, targetid, ref) {
 	if (ref) {
 		var parent = ref;
-		while (parent && parent.nodeType === XsltForms_nodeType.ELEMENT) {
+		while (parent && parent.nodeType === Fleur.Node.ELEMENT_NODE) {
 			if (XsltForms_browser.hasClass(parent, "xforms-repeat-item")) {
 				XsltForms_repeat.selectItem(parent);
 			}
@@ -205,7 +211,7 @@ XsltForms_load.subform = function(resource, targetid, ref) {
 	var targetelt = XsltForms_idManager.find(targetid);
 	var subform = null;
 	parent = targetelt;
-	while (parent && parent.nodeType === XsltForms_nodeType.ELEMENT) {
+	while (parent && parent.nodeType === Fleur.Node.ELEMENT_NODE) {
 		if (parent.xfSubform) {
 			subform = parent.xfSubform;
 			break;
@@ -214,7 +220,7 @@ XsltForms_load.subform = function(resource, targetid, ref) {
 	}
 	var a = new XsltForms_load(subform, null, resource, "embed", targetid);
 	a.run();
-}
+};
 ]]>
 	</cm:source>
 </cm:component>

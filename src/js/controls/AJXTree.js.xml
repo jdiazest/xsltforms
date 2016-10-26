@@ -70,7 +70,7 @@ XsltForms_tree.prototype.select = function(item) {
 		XsltForms_browser.setClass(item.childNodes[1], "xforms-tree-item-label-selected", true);
 		XsltForms_globals.openAction();
 		XsltForms_globals.addChange(this);
-		XsltForms_globals.addChange(document.getElementById(XsltForms_browser.getMeta(item.node.ownerDocument.documentElement, "model")).xfElement);
+		XsltForms_globals.addChange(document.getElementById(XsltForms_browser.getDocMeta(item.node.ownerDocument, "model")).xfElement);
 		XsltForms_globals.closeAction();
 	}
 };
@@ -89,7 +89,6 @@ XsltForms_tree.prototype.click = function(target) {
 XsltForms_tree.prototype.buildTree = function(parent, index, node, nodes) {
 	var li = null;
 	var ul = null;
-	var label = null;
 	var childs = node.childNodes;
 	var nochild = childs.length === 0;
 	nodes.push(node);
@@ -113,7 +112,7 @@ XsltForms_tree.prototype.buildTree = function(parent, index, node, nodes) {
 	XsltForms_browser.setClass(li, "xforms-tree-item-leaf", nochild);
 	for (var i = 0, len = childs.length; i < len; i++) {
 		var child = childs[i];
-		if (child.nodeType === XsltForms_nodeType.ELEMENT) {
+		if (child.nodeType === Fleur.Node.ELEMENT_NODE) {
 			if (!ul) {
 				ul = XsltForms_browser.createElement("ul", li);
 			}

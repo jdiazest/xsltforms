@@ -1,9 +1,9 @@
 <cm:component xmlns:cm="http://www.agencexml.com/cm" name="xp2js.xsl">
 	<cm:author>Alain Couthures</cm:author>
-	<cm:creationdate>2009-04-08</cm:creationdate>
+	<cm:creationdate>2015-04-23</cm:creationdate>
 	<cm:lastupdate>2009-04-08</cm:lastupdate>
 	<cm:licence>
-Copyright (C) 2008-2010 agenceXML - Alain COUTHURES
+Copyright (C) 2008-2015 agenceXML - Alain COUTHURES
 Contact at : info@agencexml.com
 
 Copyright (C) 2006 AJAXForms S.L.
@@ -31,9 +31,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 			<xsl:param name="ops"/>
 			<xsl:variable name="c" select="substring(normalize-space($xp),1,1)"/>
 			<xsl:variable name="d" select="substring-after($xp,$c)"/>
+			<xsl:variable name="fname" select="normalize-space(concat($c,substring-before($d,'(')))"/>
 			<xsl:variable name="r">
 				<xsl:choose>
-					<xsl:when test="contains('./@*',$c)">
+					<xsl:when test="contains('./@?*`',$c) or contains('(node(array(map(entry(', concat('(',$fname,'('))">
 						<xsl:variable name="t"><xsl:call-template name="getLocationPath"><xsl:with-param name="s" select="concat($c,$d)"/></xsl:call-template></xsl:variable>
 						<xsl:value-of select="substring-before($t,'.')"/>
 						<xsl:text>.new XsltForms_locationExpr(</xsl:text>
@@ -43,13 +44,53 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 						</xsl:choose>
 						<xsl:value-of select="substring-after($t,'.')"/><xsl:text>)</xsl:text>
 					</xsl:when>
-					<xsl:when test="$c = &quot;'&quot;">
-						<xsl:variable name="t">'<xsl:value-of select="substring-before($d,&quot;'&quot;)"/>'</xsl:variable>
-						<xsl:value-of select="concat(string-length($t),'.new XsltForms_cteExpr(',$t,')')"/>
+					<xsl:when test="$c = $apos">
+						<xsl:variable name="t">
+							<xsl:call-template name="getString">
+								<xsl:with-param name="delim" select="$apos"/>
+								<xsl:with-param name="s" select="$d"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="t1">
+							<xsl:call-template name="useEntity">
+								<xsl:with-param name="double" select='"&apos;&apos;"'/>
+								<xsl:with-param name="simple" select="$apos"/>
+								<xsl:with-param name="s" select="$t"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="t2">
+							<xsl:text>'</xsl:text>
+							<xsl:call-template name="escapeJS">
+								<xsl:with-param name="text" select="$t1"/>
+								<xsl:with-param name="trtext" select="translate($t1,concat(' ',$newline,$carriagereturn,$quot,$apos,$backslash),concat($tab,$tab,$tab,$tab,$tab,$tab))"/>
+							</xsl:call-template>
+							<xsl:text>'</xsl:text>
+						</xsl:variable>
+						<xsl:value-of select="concat(string-length($t)+2,'.new XsltForms_cteExpr(',$t2,')')"/>
 					</xsl:when>
-					<xsl:when test="$c = '&quot;'">
-						<xsl:variable name="t">"<xsl:value-of select="substring-before($d,'&quot;')"/>"</xsl:variable>
-						<xsl:value-of select="concat(string-length($t),'.new XsltForms_cteExpr(',$t,')')"/>
+					<xsl:when test="$c = $quot">
+						<xsl:variable name="t">
+							<xsl:call-template name="getString">
+								<xsl:with-param name="delim" select="$quot"/>
+								<xsl:with-param name="s" select="$d"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="t1">
+							<xsl:call-template name="useEntity">
+								<xsl:with-param name="double" select="'&quot;&quot;'"/>
+								<xsl:with-param name="simple" select="$quot"/>
+								<xsl:with-param name="s" select="$t"/>
+							</xsl:call-template>
+						</xsl:variable>
+						<xsl:variable name="t2">
+							<xsl:text>"</xsl:text>
+							<xsl:call-template name="escapeJS">
+								<xsl:with-param name="text" select="$t1"/>
+								<xsl:with-param name="trtext" select="translate($t1,concat(' ',$newline,$carriagereturn,$quot,$apos,$backslash),concat($tab,$tab,$tab,$tab,$tab,$tab))"/>
+							</xsl:call-template>
+							<xsl:text>"</xsl:text>
+						</xsl:variable>
+						<xsl:value-of select="concat(string-length($t)+2,'.new XsltForms_cteExpr(',$t2,')')"/>
 					</xsl:when>
 					<xsl:when test="$c = '('">
 						<xsl:text>(</xsl:text>
@@ -67,6 +108,10 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 							</xsl:when>
 						</xsl:choose>
 					</xsl:when>
+					<xsl:when test="$c = '$'">		
+						<xsl:variable name="t"><xsl:call-template name="getName"><xsl:with-param name="s" select="$d"/></xsl:call-template></xsl:variable>
+						<xsl:value-of select="concat(string-length($t)+1,'.new XsltForms_varRef(&quot;',$t,'&quot;)')"/>
+					</xsl:when>
 					<xsl:when test="contains('0123456789',$c)">
 						<xsl:variable name="t"><xsl:call-template name="getNumber"><xsl:with-param name="s" select="concat($c,$d)"/></xsl:call-template></xsl:variable>
 						<xsl:value-of select="concat(string-length($t),'.new XsltForms_cteExpr(',$t,')')"/>
@@ -74,7 +119,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 					<xsl:when test="contains('_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',$c)">
 						<xsl:variable name="after" select="translate($d,'_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-:','')"/>
 						<xsl:choose>
-							<xsl:when test="substring($after,1,1)='(' and substring(substring-after($d,'('),1,1) = ')' and not(contains(concat('::',$c,substring-before($d,'('),'('),'::node('))">
+							<xsl:when test="substring($after,1,1)='(' and substring(substring-after($d,'('),1,1) = ')' and not(contains(substring-before($d,'('),'::'))">
 								<xsl:variable name="t"><xsl:call-template name="getName"><xsl:with-param name="s" select="concat($c,$d)"/></xsl:call-template></xsl:variable>
 								<xsl:value-of select="string-length($t)+2"/>
 								<xsl:text>.new XsltForms_functionCallExpr('</xsl:text>

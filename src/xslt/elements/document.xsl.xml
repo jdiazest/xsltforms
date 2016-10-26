@@ -32,7 +32,37 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 		<xsl:param xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="xsltforms_config"/>
 		<xsl:param xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="xsltforms_debug"/>
 		<xsl:param xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="xsltforms_lang"/>
-		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="configdoc" select="document(concat($xsltforms_home,'config.xsl'))/xsl:stylesheet/xsl:template[@name='config']"/>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="xsltformspivalue" select="translate(normalize-space(/processing-instruction('xsltforms-options')[1]), ' ', '')" />
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="lang">
+			<xsl:choose>
+				<xsl:when test="$xsltforms_lang != ''"><xsl:value-of select="$xsltforms_lang"/></xsl:when>
+				<xsl:when test="substring(substring-after($xsltformspivalue, 'lang='), 1, 1) != ''">
+					<xsl:variable name="langquote" select="substring(substring-after($xsltformspivalue, 'lang='), 1, 1)"/>
+					<xsl:value-of select="substring-before(substring-after($xsltformspivalue, concat('lang=', $langquote)), $langquote)"/>
+				</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="langextension">
+			<xsl:choose>
+				<xsl:when test="$lang != '' and $lang != 'navigator'">_<xsl:value-of select="$lang"/></xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="configdoc" select="document(concat($xsltforms_home,'config',$langextension,'.xsl'))/xsl:stylesheet/xsl:template[@name='config']"/>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="configlang">
+			<xsl:choose>
+				<xsl:when test="$xsltforms_lang != ''"><xsl:value-of select="$xsltforms_lang"/></xsl:when>
+				<xsl:otherwise><xsl:value-of select="$configdoc/properties/language"/></xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="domengine">
+			<xsl:choose>
+				<xsl:when test="substring(substring-after($xsltformspivalue, 'domengine='), 1, 1) != ''">
+					<xsl:variable name="paramquote" select="substring(substring-after($xsltformspivalue, 'domengine='), 1, 1)"/>
+					<xsl:value-of select="substring-before(substring-after($xsltformspivalue, concat('domengine=', $paramquote)), $paramquote)"/>
+				</xsl:when>
+				<xsl:when test="$configdoc/properties/domengine"><xsl:value-of select="concat('name=',$configdoc/properties/domengine/@name,';url=',$configdoc/properties/domengine/@url,';uri=',$configdoc/properties/domengine/@uri,';version=',$configdoc/properties/domengine/@version)"/></xsl:when>
+			</xsl:choose>
+		</xsl:variable>
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="doc_id" select="'xsltforms-mainform'"/>
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="id_pf" select="'xsltforms-mainform-'"/>
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="jsid_pf" select="'xsltforms_subform.id + &quot;-'"/>
@@ -52,7 +82,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 				<collect>
 					<xsl:choose>
 						<xsl:when test="$piform != '' and count($piformdoc/*) != 0">
-							<xsl:apply-templates select="$piformdoc/*" mode="script"/>
+							<xsl:apply-templates select="$piformdoc/*" mode="script">
+								<xsl:with-param name="workid">2_</xsl:with-param>
+							</xsl:apply-templates>
 						</xsl:when>
 						<xsl:otherwise>
 							<xsl:apply-templates select="/" mode="script"/>
@@ -61,12 +93,16 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 				</collect>
 				<config>
 					<xsl:choose>
+						<xsl:when test="$xsltforms_config != ''"/>
 						<xsl:when test="$configdoc/properties"><xsl:copy-of select="$configdoc/*"/></xsl:when>
 						<xsl:otherwise>
 								<options>
 								</options>
 								<properties>
+									<html>4</html>
+									<jsrevision/>
 									<language>navigator</language>
+									<calendar.label>...</calendar.label>
 									<calendar.day0>Mon</calendar.day0>
 									<calendar.day1>Tue</calendar.day1>
 									<calendar.day2>Wed</calendar.day2>
@@ -98,7 +134,6 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 				</config>
 			</script>
 		</xsl:variable>
-		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="xsltformspivalue" select="translate(normalize-space(/processing-instruction('xsltforms-options')[1]), ' ', '')" />
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="required-position">
 			<xsl:choose>
 				<xsl:when test="$configdoc/properties/required-position">
@@ -111,8 +146,18 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 			</xsl:choose>
 		</xsl:variable>
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="main" select="/"/>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="amp"><xsl:text>&amp;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="apos"><xsl:text>&apos;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="lt"><xsl:text>&lt;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="gt"><xsl:text>&gt;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="quot"><xsl:text>&quot;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="backslash"><xsl:text>\</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="lineseparator"><xsl:text>&#8232;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="newline"><xsl:text>&#10;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="carriagereturn"><xsl:text>&#13;</xsl:text></xsl:variable>
+		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="tab"><xsl:text>&#9;</xsl:text></xsl:variable>
 		<xsl:variable xmlns:xsl="http://www.w3.org/1999/XSL/Transform" name="profiler">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsltforms="http://www.agencexml.com/xsltforms">
+<html xmlns:xf="http://www.w3.org/2002/xforms" xmlns:xsltforms="http://www.agencexml.com/xsltforms">
 	<head>
 		<title>XSLTForms Profiler</title>
 		<xf:model>
